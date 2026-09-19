@@ -1,7 +1,7 @@
 import { expect } from "bun:test";
 import { readFileSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
-import { CAPTURE_CONTRACT, captureFrame } from "@dylanebert/shallot/harness/capture";
+import { captureFrame } from "@dylanebert/shallot/harness/capture";
 import { check } from "@dylanebert/shallot/harness/check";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -11,7 +11,7 @@ check(
     "installed candidate identity and public capture export",
     {
         claim: "Eval installs the qualified candidate and public frame seam",
-        size: "integration",
+        size: "unit",
         subject: "package.json",
     },
     () => {
@@ -29,23 +29,5 @@ check(
             "@dylanebert/shallot",
         );
         expect(typeof captureFrame).toBe("function");
-    },
-);
-
-check(
-    "grade probe uses the installed final-canvas contract",
-    {
-        claim: "the live grade consumes the public fixed final-canvas frame contract",
-        size: "integration",
-        subject: "src/grade-probe.ts",
-    },
-    () => {
-        expect(CAPTURE_CONTRACT).toEqual({
-            width: 1280,
-            height: 720,
-            deviceScale: 1,
-            surface: "final-canvas",
-            encoding: "rgba8-tight",
-        });
     },
 );

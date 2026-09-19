@@ -41,7 +41,7 @@ check(
     "stripTarball — removes AGENTS.md from the tarball",
     {
         claim: "bare setup removes AGENTS.md from the installed tarball",
-        size: "integration",
+        size: "unit",
         subject: "src/setup.ts",
     },
     () => {
@@ -66,7 +66,7 @@ check(
     "stripTarball — removes examples/ from the tarball",
     {
         claim: "bare setup removes examples from the installed tarball",
-        size: "integration",
+        size: "unit",
         subject: "src/setup.ts",
     },
     () => {
@@ -91,7 +91,7 @@ check(
     "stripTarball — preserves the code files (does not over-strip)",
     {
         claim: "bare setup preserves code files in the installed tarball",
-        size: "integration",
+        size: "unit",
         subject: "src/setup.ts",
     },
     () => {

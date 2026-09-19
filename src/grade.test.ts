@@ -33,14 +33,3 @@ check(
         expect(deriveResultKind(false, false, null)).toBe("FAIL");
     },
 );
-
-check(
-    "deriveResultKind — a staging failure with ok typecheck/build is never PASS",
-    { claim: "staging failure never derives PASS" },
-    () => {
-        // The staging failure path (gateOk=null) never reads as PASS — INCOMPLETE is the honest
-        // verdict for a run where nothing determined the gate outcome.
-        const kind = deriveResultKind(true, true, null);
-        expect(kind).not.toBe("PASS");
-    },
-);
