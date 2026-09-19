@@ -11,8 +11,7 @@ single run does not produce a score, aggregate, model-capability conclusion, or 
 
 ## Surface Commands
 
-The repository admits eight checks through the installed Shallot carrier: three hermetic result units,
-three tar/filesystem setup integrations, and two package/frame contract integrations. The default
+The repository admits six hermetic unit checks through the installed Shallot carrier. The default
 surface never runs task setup, task grading, a browser, or an engine clone.
 
 ```bash
@@ -20,11 +19,9 @@ bun install
 bun run list
 bun run check
 bun run test
-bun run test -- --integration --base <base-ref> --diff <head-ref>
 ```
 
-The setup integrations are selected only when their declared subjects change in their complete token
-streams. Comment-only edits do not select them. Regenerate the committed hosted workflow with
+Regenerate the committed hosted workflow with
 `bun run workflow`; `bun run check` refuses workflow drift.
 
 The carrier is pinned as a dev-only dependency to Shallot source commit
@@ -46,8 +43,7 @@ installed `shallot` bin and do not clone an engine.
   gates, then uses the installed Shallot `runBrowserCheck` and `captureFrame` public contracts. Eval
   does not copy a browser driver or capture transport. A task failure is `FAIL`; missing or unusable
   public instrumentation is `INCOMPLETE`, not a pass.
-- **Surface cadence is separate from task gates.** `test` runs only the three result units. The five
-  integration rows run only through subject selection or an explicit carrier row selector. Task
+- **Surface cadence is separate from task gates.** `test` runs the six unit rows. Task
   setup and grading remain explicit commands and are not default checks.
 
 ## Tasks
