@@ -5,7 +5,7 @@ import { captureFrame } from "@dylanebert/shallot/harness/capture";
 import { check } from "@dylanebert/shallot/harness/check";
 
 const ROOT = resolve(import.meta.dir, "..");
-const CANDIDATE = "0664218f465224397b80aeb604b51178ac71cfb2";
+const CANDIDATE = "355dca344b9be4f68406198bfe156337be47cdee";
 
 check(
     "installed candidate identity and public capture export",

@@ -16,16 +16,13 @@ surface never runs task setup, task grading, a browser, or an engine clone.
 
 ```bash
 bun install
-bun run list
+shallot test --list
 bun run check
 bun run test
 ```
 
-Regenerate the committed hosted workflow with
-`bun run workflow`; `bun run check` refuses workflow drift.
-
-The carrier is pinned as a dev-only dependency to Shallot source commit
-`0664218f465224397b80aeb604b51178ac71cfb2`. After `bun install`, these surface commands use the
+The carrier is pinned as a dev-only dependency to a Shallot source commit, named in
+`package.json`. After `bun install`, these surface commands use the
 installed `shallot` bin and do not clone an engine.
 
 ## The Contract

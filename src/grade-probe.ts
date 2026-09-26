@@ -338,4 +338,5 @@ void waitForCanvas().then(() => {
         run,
         ...(existing?.read === undefined ? {} : { read: existing.read }),
     };
+    (window as Window & { __shallotEvalGradeReady?: boolean }).__shallotEvalGradeReady = true;
 });

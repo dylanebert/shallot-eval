@@ -81,9 +81,13 @@ const server = Bun.serve({
             "<script>globalThis.__shallotEvalTask = " +
             JSON.stringify(task) +
             '</script><script type="module" src="/__shallot_eval_probe.js"></script>';
+        const headers = new Headers(upstream.headers);
+        headers.delete("content-length");
+        headers.set("content-type", "text/html; charset=utf-8");
+        headers.set("cache-control", "no-store");
         return new Response(html.replace("</body>", `${injection}</body>`), {
             status: upstream.status,
-            headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+            headers,
         });
     },
 });

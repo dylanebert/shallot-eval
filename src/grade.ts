@@ -1,10 +1,10 @@
-// Grade one task through the installed package's public browser harness. The withheld probe is bundled
-// for one run and reaches the browser only through the public runBrowserCheck and captureFrame
-// contracts. It does not copy a driver, capture transport, engine source, gate, or notes.
+// Grade one task through the installed package's public browser helper. The withheld probe is bundled
+// for one run and reaches the browser only through runBrowserCheck(entry, drive) and captureFrame.
+// It does not copy a driver, capture transport, engine source, gate, or notes.
 
 import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { runBrowserCheck } from "@dylanebert/shallot/harness";
+import { runBrowserCheck } from "@dylanebert/shallot/harness/browser";
 import { deriveResultKind } from "./result";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -25,6 +25,48 @@ type BrowserGrade = {
     reproduction?: { capture?: string };
     checks?: unknown[];
 };
+
+async function processOutput(process: ReturnType<typeof Bun.spawn>): Promise<string> {
+    const read = async (stream: unknown): Promise<string> =>
+        stream === null || stream === undefined
+            ? ""
+            : await new Response(stream as ReadableStream<Uint8Array>).text();
+    return [await read(process.stdout), await read(process.stderr)]
+        .filter(Boolean)
+        .join("\n")
+        .trim();
+}
+
+async function waitForGradeServer(
+    process: ReturnType<typeof Bun.spawn>,
+    url: string,
+): Promise<void> {
+    const deadline = performance.now() + 25_000;
+    while (performance.now() < deadline) {
+        if (process.exitCode !== null)
+            throw new Error(`grade server exited with ${process.exitCode}`);
+        try {
+            const response = await fetch(url, { signal: AbortSignal.timeout(500) });
+            if (response.ok) return;
+        } catch {
+            // The project server is still starting.
+        }
+        await Bun.sleep(50);
+    }
+    throw new Error(`timed out waiting for the grade server at ${url}`);
+}
+
+function unusedPort(): number {
+    const server = Bun.serve({
+        hostname: "127.0.0.1",
+        port: 0,
+        fetch: () => new Response(),
+    });
+    const { port } = server;
+    server.stop(true);
+    if (port === undefined) throw new Error("grade server could not reserve a port");
+    return port;
+}
 
 type EvalRecord = {
     task?: string;
@@ -162,6 +204,8 @@ if (validationError) {
     if (typecheckOk && buildOk) {
         mkdirSync(bundleDir, { recursive: true });
         writeFileSync(probePath, readFileSync(join(ROOT, "src/grade-probe.ts")));
+        let gradeServer: ReturnType<typeof Bun.spawn> | undefined;
+        let serverOutput = "";
         try {
             const built = await Bun.build({
                 entrypoints: [probePath],
@@ -170,46 +214,63 @@ if (validationError) {
                 target: "browser",
             });
             if (!built.success) throw new Error(built.logs.map(String).join("\n"));
-            browser = (await runBrowserCheck((port) => [
-                process.execPath,
-                join(ROOT, "scripts/grade-server.ts"),
-                "--project",
-                project,
-                "--task",
-                task,
-                "--probe",
-                bundlePath,
-                "--port",
-                String(port),
-            ])) as BrowserGrade;
-            gateOk = browser.ok;
-        } catch (error) {
-            const value = error as {
-                message?: string;
-                runtime?: unknown;
-                hardware?: unknown;
-                reproduction?: BrowserGrade["reproduction"];
-                diagnostics?: unknown;
+
+            const entryPath = join(bundleDir, "entry.html");
+            writeFileSync(
+                entryPath,
+                "<!doctype html><html><body><script>window.__harness = { ready: true };</script></body></html>",
+            );
+            const port = unusedPort();
+            const url = `http://127.0.0.1:${port}/`;
+            gradeServer = Bun.spawn(
+                [
+                    process.execPath,
+                    join(ROOT, "scripts/grade-server.ts"),
+                    "--project",
+                    project,
+                    "--task",
+                    task,
+                    "--probe",
+                    bundlePath,
+                    "--port",
+                    String(port),
+                ],
+                { cwd: ROOT, stdout: "pipe", stderr: "pipe" },
+            );
+            await waitForGradeServer(gradeServer, url);
+
+            const verdict = await runBrowserCheck(entryPath, async (page) => {
+                await page.goto(url, { waitUntil: "load" });
+                await page.waitForFunction(
+                    () =>
+                        (window as Window & { __shallotEvalGradeReady?: boolean })
+                            .__shallotEvalGradeReady === true,
+                    null,
+                    { timeout: 10_000 },
+                );
+            });
+            const checks = verdict.checks ?? [];
+            const failedChecks = checks.filter((check) => !check.ok);
+            browser = {
+                ok: verdict.ok,
+                runtime: verdict.runtime,
+                hardware: verdict.hardware,
+                reproduction:
+                    typeof verdict.capture === "string" ? { capture: verdict.capture } : undefined,
+                checks: verdict.ok ? checks : failedChecks,
             };
-            if (value.message === "the page returned a failing verdict") {
-                // The public instrument ran and the task made a determined negative claim.
-                gateOk = false;
-                browser = {
-                    ok: false,
-                    runtime: value.runtime,
-                    hardware: value.hardware,
-                    reproduction: value.reproduction,
-                    checks:
-                        typeof value.diagnostics === "object" && value.diagnostics !== null
-                            ? (value.diagnostics as { checks?: unknown[] }).checks
-                            : [],
-                };
-                failureDiagnostics = value.diagnostics;
-            } else {
-                // Driver, seat, capture, or probe failures did not determine the task outcome.
-                instrumentationError = value.message ?? String(error);
-            }
+            gateOk = verdict.ok;
+            if (!verdict.ok) failureDiagnostics = { checks: failedChecks };
+        } catch (error) {
+            instrumentationError = error instanceof Error ? error.message : String(error);
         } finally {
+            if (gradeServer !== undefined) {
+                gradeServer.kill();
+                await gradeServer.exited.catch(() => undefined);
+                serverOutput = await processOutput(gradeServer);
+            }
+            if (instrumentationError && serverOutput)
+                instrumentationError += `\n${serverOutput.slice(-4_000)}`;
             rmSync(probePath, { force: true });
             rmSync(bundleDir, { recursive: true, force: true });
         }

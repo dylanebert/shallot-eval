@@ -1,8 +1,8 @@
 # Shallot Eval Contract
 
 This evaluation admits Bun `1.4.2` from `.bun-version`/`packageManager`. Its carrier is the installed
-`shallot` bin. Run `bun run list`, `bun run check`, `bun run test`, and `bun run workflow`; these
-surface gates stay independent from task setup and grading.
+`shallot` bin. Run `shallot test --list`, `bun run check`, and `bun run test`; these surface gates
+stay independent from task setup and grading.
 
 Eval owns the prompts, context arms, withheld task expectations, invocation records, and agent
 outcomes. Shallot owns the installed carrier, scheduler and observation mechanism, browser driver,
@@ -17,9 +17,9 @@ gates into a second engine-correctness population, or infer model capability fro
   `package.json`/`bun.lock` hashes; the installed realpath must equal the producer. Exit with a fresh
   empty-cache `bun install --force --frozen-lockfile --cache-dir <cache>`, prove a non-producer
   realpath and the candidate identity, rerun the focused gate, and unlink the producer when finished.
-- Source staging is the persisted dev dependency and lock resolution
-  `github:dylanebert/shallot#0664218f465224397b80aeb604b51178ac71cfb2`. Both manifest and lock must
-  carry the complete SHA; frozen installs use a newly empty explicit cache.
+- Source staging is the persisted dev dependency and lock resolution, a `github:dylanebert/shallot#`
+  spec whose complete SHA both manifest and lock carry; frozen installs use a newly empty explicit
+  cache.
 - The local pack made by `bun run setup` is **artifact preflight**, not source staging. It is produced
   from that source commit, installed only in the out-of-tree task app, and recorded in `.eval.json`
   with source commit and SHA-256 tar integrity. Generated apps retain the S1 stable
