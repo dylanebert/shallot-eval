@@ -331,12 +331,10 @@ async function run(): Promise<{ ok: boolean; checks: Assertion[]; capture: strin
 }
 
 void waitForCanvas().then(() => {
-    const existing = window.__harness;
     // Only the installed public capture contract is used; Eval supplies no replacement transport.
     window.__harness = {
         ready: true,
         run,
-        ...(existing?.read === undefined ? {} : { read: existing.read }),
     };
     (window as Window & { __shallotEvalGradeReady?: boolean }).__shallotEvalGradeReady = true;
 });
