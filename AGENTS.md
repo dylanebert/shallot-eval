@@ -38,11 +38,10 @@ shipped public context. Setup records the exact source commit and artifact integ
 installed `@dylanebert/shallot/harness` `runBrowserCheck`. The temporary probe imports only the
 installed public `@dylanebert/shallot/harness/capture` `captureFrame` contract. It asserts the
 existing task properties semantically over `final-canvas 1280x720@1 rgba8-tight`, never by a screenshot
-golden, CPU reconstruction of GPU truth, software adapter, copied capture transport, or
-archived/private engine driver. A determined task failure is `FAIL`; a missing or unusable public
-instrument is `INCOMPLETE`, never green. The browser seat must positively identify a real adapter; an
-absent or fallback seat is inconclusive/refused, never green. Grading tears down its ephemeral app
-server and leaves no tabs.
+golden, CPU reconstruction of GPU truth, copied capture transport, or archived/private engine driver.
+A determined task failure is `FAIL`; a missing or unusable public instrument is `INCOMPLETE`, never
+green. Adapter identity, when present in the subject's existing output, is provenance only; Eval does
+not grade adapter class. Grading tears down its ephemeral app server and leaves no tabs.
 
 Task setup, grading, and the carrier's surface checks are separate gates. Empty changed-subject
 selection refuses rather than falling through to units. Product checks do not claim that carrier
