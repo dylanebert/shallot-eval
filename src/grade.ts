@@ -1,10 +1,15 @@
-// Grade one task through the installed package's public browser helper. The withheld probe is bundled
-// for one run and reaches the browser only through runBrowserCheck(entry, drive) and captureFrame.
-// It does not copy a driver, capture transport, engine source, gate, or notes.
+// Grade one task by running its own Vite preview under Playwright Test. The withheld probe is
+// bundled for one run and loaded into the preview page; capture comes only from /rendering.
 
-import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import {
+    existsSync,
+    mkdtempSync,
+    readFileSync,
+    realpathSync,
+    rmSync,
+    writeFileSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
-import { runBrowserCheck } from "@dylanebert/shallot/harness/browser";
 import { deriveResultKind } from "./result";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -18,42 +23,24 @@ const TASKS = new Set([
 ]);
 
 type CommandResult = { command: string[]; ok: boolean; output: string };
+type Assertion = { name: string; ok: boolean; detail: string };
 type BrowserGrade = {
     ok: boolean;
-    runtime?: unknown;
+    runtime?: string;
     hardware?: unknown;
     reproduction?: { capture?: string };
-    checks?: unknown[];
+    checks?: Assertion[];
+};
+type ProbeResult = {
+    ok: boolean;
+    checks: Assertion[];
+    capture: string;
+    runtime?: string;
+    hardware?: string;
 };
 
-async function processOutput(process: ReturnType<typeof Bun.spawn>): Promise<string> {
-    const read = async (stream: unknown): Promise<string> =>
-        stream === null || stream === undefined
-            ? ""
-            : await new Response(stream as ReadableStream<Uint8Array>).text();
-    return [await read(process.stdout), await read(process.stderr)]
-        .filter(Boolean)
-        .join("\n")
-        .trim();
-}
-
-async function waitForGradeServer(
-    process: ReturnType<typeof Bun.spawn>,
-    url: string,
-): Promise<void> {
-    const deadline = performance.now() + 25_000;
-    while (performance.now() < deadline) {
-        if (process.exitCode !== null)
-            throw new Error(`grade server exited with ${process.exitCode}`);
-        try {
-            const response = await fetch(url, { signal: AbortSignal.timeout(500) });
-            if (response.ok) return;
-        } catch {
-            // The project server is still starting.
-        }
-        await Bun.sleep(50);
-    }
-    throw new Error(`timed out waiting for the grade server at ${url}`);
+async function processOutput(stream: ReadableStream<Uint8Array> | null): Promise<string> {
+    return stream === null ? "" : await new Response(stream).text();
 }
 
 function unusedPort(): number {
@@ -64,7 +51,7 @@ function unusedPort(): number {
     });
     const { port } = server;
     server.stop(true);
-    if (port === undefined) throw new Error("grade server could not reserve a port");
+    if (port === undefined) throw new Error("grade preview could not reserve a port");
     return port;
 }
 
@@ -80,6 +67,16 @@ function run(command: string[], cwd: string): CommandResult {
         ok: process.exitCode === 0,
         output: `${process.stdout.toString()}\n${process.stderr.toString()}`.trim(),
     };
+}
+
+async function runBrowser(command: string[], cwd: string): Promise<CommandResult> {
+    const process = Bun.spawn(command, { cwd, stdout: "pipe", stderr: "pipe" });
+    const [stdout, stderr, exitCode] = await Promise.all([
+        processOutput(process.stdout),
+        processOutput(process.stderr),
+        process.exited,
+    ]);
+    return { command, ok: exitCode === 0, output: `${stdout}\n${stderr}`.trim() };
 }
 
 function fail(message: string, output = ""): never {
@@ -142,6 +139,100 @@ export function validateEvalProject(project: string, task: string): void {
         throw new Error("project is not using the recorded packed package artifact");
 }
 
+function playwrightConfig(project: string, gradeDir: string, port: number): string {
+    const url = `http://127.0.0.1:${port}`;
+    return `import type { PlaywrightTestConfig } from "playwright/test";
+
+export default {
+    testDir: ${JSON.stringify(gradeDir)},
+    outputDir: ${JSON.stringify(join(gradeDir, "test-results"))},
+    testMatch: "grade.e2e.ts",
+    timeout: 20_000,
+    globalTimeout: 12_000,
+    fullyParallel: false,
+    workers: 1,
+    reporter: "list",
+    use: {
+        browserName: "chromium",
+        channel: "chromium",
+        launchOptions: {
+            args: ["--enable-unsafe-webgpu", "--ignore-gpu-blocklist", "--enable-features=WebGPU"],
+        },
+        baseURL: ${JSON.stringify(url)},
+        viewport: { width: 1280, height: 720 },
+        deviceScaleFactor: 1,
+    },
+    webServer: {
+        command: "bun x vite preview --host 127.0.0.1 --port ${port} --strictPort",
+        cwd: ${JSON.stringify(project)},
+        url: ${JSON.stringify(url)},
+        reuseExistingServer: false,
+        timeout: 30_000,
+    },
+} satisfies PlaywrightTestConfig;
+`;
+}
+
+function playwrightSpec(task: string, bundlePath: string, resultPath: string): string {
+    return `import { writeFileSync } from "node:fs";
+import { expect, test } from "playwright/test";
+
+test("withheld task claims", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    const seat = await page.evaluate(async () => {
+        const gpu = (navigator as Navigator & {
+            gpu?: {
+                requestAdapter: () => Promise<{
+                    info?: {
+                        vendor?: string;
+                        architecture?: string;
+                        device?: string;
+                        description?: string;
+                        isFallbackAdapter: boolean;
+                    };
+                } | null>;
+            };
+        }).gpu;
+        if (!gpu) throw new Error("grade refused: Chromium has no WebGPU premise");
+        const adapter = await gpu.requestAdapter();
+        if (!adapter) throw new Error("grade refused: Chromium could not obtain a WebGPU adapter");
+        const info = adapter.info;
+        if (!info || typeof info.isFallbackAdapter !== "boolean")
+            throw new Error("grade refused: Chromium cannot establish the WebGPU adapter premise");
+        if (info.isFallbackAdapter)
+            throw new Error("grade refused: the software WebGPU adapter cannot establish task behavior");
+        const hardware = info
+            ? [info.vendor, info.architecture, info.device, info.description].filter(Boolean).join(" ")
+            : undefined;
+        return { runtime: navigator.userAgent, hardware };
+    });
+    await page.addScriptTag({ path: ${JSON.stringify(bundlePath)} });
+    await page.evaluate((task) => {
+        (window as Window & { __shallotEvalTask?: string }).__shallotEvalTask = task;
+    }, ${JSON.stringify(task)});
+    await page.waitForFunction(
+        () =>
+            (window as Window & { __shallotEvalGradeReady?: boolean }).__shallotEvalGradeReady ===
+            true,
+        null,
+        { timeout: 10_000 },
+    );
+    const result = await page.evaluate(async () => {
+        const grade = (window as Window & {
+            __shallotEvalGrade?: {
+                run: () => Promise<{ ok: boolean; checks: { name: string; ok: boolean; detail: string }[]; capture: string }>;
+            };
+        }).__shallotEvalGrade;
+        if (!grade) throw new Error("grade refused: withheld probe did not initialize");
+        return grade.run();
+    });
+    const record = { ...result, ...seat };
+    writeFileSync(${JSON.stringify(resultPath)}, JSON.stringify(record));
+    expect(result.ok, JSON.stringify(result.checks)).toBe(true);
+});
+`;
+}
+
 function printResult(result: Record<string, unknown>, kind: string, json: boolean): void {
     if (json) console.log(JSON.stringify(result));
     else {
@@ -198,81 +289,54 @@ if (validationError) {
     let instrumentationError: string | undefined;
     let failureDiagnostics: unknown;
     const probePath = join(project, ".shallot-eval-grade-probe.ts");
-    const bundleDir = join(project, ".shallot-eval-grade");
-    const bundlePath = join(bundleDir, "probe.js");
+    let gradeDir: string | undefined;
 
     if (typecheckOk && buildOk) {
-        mkdirSync(bundleDir, { recursive: true });
+        gradeDir = mkdtempSync(join(ROOT, ".shallot-eval-grade-"));
+        const bundlePath = join(gradeDir, "probe.js");
+        const specPath = join(gradeDir, "grade.e2e.ts");
+        const configPath = join(gradeDir, "playwright.config.ts");
+        const resultPath = join(gradeDir, "result.json");
         writeFileSync(probePath, readFileSync(join(ROOT, "src/grade-probe.ts")));
-        let gradeServer: ReturnType<typeof Bun.spawn> | undefined;
-        let serverOutput = "";
         try {
             const built = await Bun.build({
                 entrypoints: [probePath],
-                outdir: bundleDir,
+                outdir: gradeDir,
                 naming: "probe.js",
                 target: "browser",
             });
             if (!built.success) throw new Error(built.logs.map(String).join("\n"));
 
-            const entryPath = join(bundleDir, "entry.html");
-            writeFileSync(
-                entryPath,
-                "<!doctype html><html><body><script>window.__harness = { ready: true };</script></body></html>",
+            const port = Number(args[portIndex + 1]) || unusedPort();
+            writeFileSync(configPath, playwrightConfig(project, gradeDir, port));
+            writeFileSync(specPath, playwrightSpec(task, bundlePath, resultPath));
+            const browserRun = await runBrowser(
+                ["bun", "x", "playwright", "test", "--config", configPath],
+                ROOT,
             );
-            const port = unusedPort();
-            const url = `http://127.0.0.1:${port}/`;
-            gradeServer = Bun.spawn(
-                [
-                    process.execPath,
-                    join(ROOT, "scripts/grade-server.ts"),
-                    "--project",
-                    project,
-                    "--task",
-                    task,
-                    "--probe",
-                    bundlePath,
-                    "--port",
-                    String(port),
-                ],
-                { cwd: ROOT, stdout: "pipe", stderr: "pipe" },
-            );
-            await waitForGradeServer(gradeServer, url);
-
-            const verdict = await runBrowserCheck(entryPath, async (page) => {
-                await page.goto(url, { waitUntil: "load" });
-                await page.waitForFunction(
-                    () =>
-                        (window as Window & { __shallotEvalGradeReady?: boolean })
-                            .__shallotEvalGradeReady === true,
-                    null,
-                    { timeout: 10_000 },
-                );
-            });
-            const checks = verdict.checks ?? [];
-            const failedChecks = checks.filter((check) => !check.ok);
-            browser = {
-                ok: verdict.ok,
-                runtime: verdict.runtime,
-                hardware: verdict.hardware,
-                reproduction:
-                    typeof verdict.capture === "string" ? { capture: verdict.capture } : undefined,
-                checks: verdict.ok ? checks : failedChecks,
-            };
-            gateOk = verdict.ok;
-            if (!verdict.ok) failureDiagnostics = { checks: failedChecks };
+            if (!existsSync(resultPath)) {
+                instrumentationError = `Playwright did not produce a determined task result${browserRun.output ? `:\n${browserRun.output.slice(-4_000)}` : ""}`;
+            } else {
+                const verdict = JSON.parse(readFileSync(resultPath, "utf8")) as ProbeResult;
+                const checks = verdict.checks ?? [];
+                const failedChecks = checks.filter((check) => !check.ok);
+                browser = {
+                    ok: verdict.ok,
+                    runtime: verdict.runtime,
+                    hardware: verdict.hardware,
+                    reproduction: { capture: verdict.capture },
+                    checks: verdict.ok ? checks : failedChecks,
+                };
+                gateOk = verdict.ok;
+                // The semantic result is the probe's completed assertions. A Playwright process
+                // failure without that result remains instrumentation failure, never a pass.
+                if (!verdict.ok) failureDiagnostics = { checks: failedChecks };
+            }
         } catch (error) {
             instrumentationError = error instanceof Error ? error.message : String(error);
         } finally {
-            if (gradeServer !== undefined) {
-                gradeServer.kill();
-                await gradeServer.exited.catch(() => undefined);
-                serverOutput = await processOutput(gradeServer);
-            }
-            if (instrumentationError && serverOutput)
-                instrumentationError += `\n${serverOutput.slice(-4_000)}`;
             rmSync(probePath, { force: true });
-            rmSync(bundleDir, { recursive: true, force: true });
+            if (gradeDir) rmSync(gradeDir, { recursive: true, force: true });
         }
     }
 

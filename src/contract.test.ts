@@ -1,33 +1,38 @@
-import { expect } from "bun:test";
+import { expect, test } from "bun:test";
 import { readFileSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
-import { captureFrame } from "@dylanebert/shallot/harness/capture";
-import { check } from "@dylanebert/shallot/harness/check";
+import { CAPTURE_CONTRACT, captureFrame } from "@dylanebert/shallot/rendering";
 
 const ROOT = resolve(import.meta.dir, "..");
-const CANDIDATE = "355dca344b9be4f68406198bfe156337be47cdee";
+const CANDIDATE_VERSION = "0.10.0";
 
-check(
-    "installed candidate identity and public capture export",
-    {
-        claim: "Eval installs the qualified candidate and public frame seam",
-        size: "unit",
-        subject: "package.json",
-    },
-    () => {
-        const manifest = JSON.parse(readFileSync(resolve(ROOT, "package.json"), "utf8")) as {
-            devDependencies: Record<string, string>;
-        };
-        const lock = readFileSync(resolve(ROOT, "bun.lock"), "utf8");
-        const declared = manifest.devDependencies["@dylanebert/shallot"];
-        expect(declared).toBe(`github:dylanebert/shallot#${CANDIDATE}`);
-        expect(lock).toContain(declared);
-        const nodeModules = realpathSync(resolve(ROOT, "node_modules"));
-        const installed = realpathSync(resolve(ROOT, "node_modules/@dylanebert/shallot"));
-        expect(installed.startsWith(`${nodeModules}/`)).toBe(true);
-        expect(JSON.parse(readFileSync(resolve(installed, "package.json"), "utf8")).name).toBe(
-            "@dylanebert/shallot",
-        );
-        expect(typeof captureFrame).toBe("function");
-    },
-);
+test("Eval installs the candidate package and public frame seam", () => {
+    const manifest = JSON.parse(readFileSync(resolve(ROOT, "package.json"), "utf8")) as {
+        devDependencies: Record<string, string>;
+    };
+    const engine = JSON.parse(readFileSync(resolve(ROOT, "engine.json"), "utf8")) as {
+        source: string;
+    };
+    const lock = readFileSync(resolve(ROOT, "bun.lock"), "utf8");
+    const declared = manifest.devDependencies["@dylanebert/shallot"];
+    expect(declared === engine.source || declared.endsWith("/dylanebert-shallot-0.10.0.tgz")).toBe(
+        true,
+    );
+    expect(lock).toContain(declared);
+    const nodeModules = realpathSync(resolve(ROOT, "node_modules"));
+    const installed = realpathSync(resolve(ROOT, "node_modules/@dylanebert/shallot"));
+    expect(installed.startsWith(`${nodeModules}/`)).toBe(true);
+    const installedManifest = JSON.parse(
+        readFileSync(resolve(installed, "package.json"), "utf8"),
+    ) as { name?: string; version?: string };
+    expect(installedManifest.name).toBe("@dylanebert/shallot");
+    expect(installedManifest.version).toBe(CANDIDATE_VERSION);
+    expect(typeof captureFrame).toBe("function");
+    expect(CAPTURE_CONTRACT).toEqual({
+        width: 1280,
+        height: 720,
+        deviceScale: 1,
+        surface: "final-canvas",
+        encoding: "rgba8-tight",
+    });
+}, 250);

@@ -1,4 +1,4 @@
-import { type Capture, captureFrame } from "@dylanebert/shallot/harness/capture";
+import { CAPTURE_CONTRACT, type Capture, captureFrame } from "@dylanebert/shallot/rendering";
 
 interface Rgb {
     r: number;
@@ -12,6 +12,14 @@ interface Assertion {
 }
 
 const assertions: Assertion[] = [];
+type GradeWindow = Window & {
+    __shallotEvalTask?: string;
+    __shallotEvalGrade?: {
+        ready: true;
+        run: () => Promise<{ ok: boolean; checks: Assertion[]; capture: string }>;
+    };
+    __shallotEvalGradeReady?: boolean;
+};
 const canvas = (): HTMLCanvasElement => {
     const element = document.querySelector("canvas");
     if (!(element instanceof HTMLCanvasElement))
@@ -25,8 +33,8 @@ async function waitForCanvas(): Promise<void> {
         const element = document.querySelector("canvas");
         if (
             element instanceof HTMLCanvasElement &&
-            element.width === 1280 &&
-            element.height === 720
+            element.width === CAPTURE_CONTRACT.width &&
+            element.height === CAPTURE_CONTRACT.height
         ) {
             await new Promise(requestAnimationFrame);
             await new Promise(requestAnimationFrame);
@@ -315,7 +323,7 @@ async function stripedMaterial(): Promise<void> {
 
 async function run(): Promise<{ ok: boolean; checks: Assertion[]; capture: string }> {
     await waitForCanvas();
-    const task = (globalThis as { __shallotEvalTask?: string }).__shallotEvalTask;
+    const task = (window as GradeWindow).__shallotEvalTask;
     if (task === "red-box") await redBox();
     else if (task === "falling-box") await fallingBox();
     else if (task === "orbit-on-drag") await orbitOnDrag();
@@ -326,15 +334,13 @@ async function run(): Promise<{ ok: boolean; checks: Assertion[]; capture: strin
     return {
         ok: assertions.every((entry) => entry.ok),
         checks: assertions,
-        capture: "final-canvas 1280x720@1 rgba8-tight",
+        capture: `${CAPTURE_CONTRACT.surface} ${CAPTURE_CONTRACT.width}x${CAPTURE_CONTRACT.height}@${CAPTURE_CONTRACT.deviceScale} ${CAPTURE_CONTRACT.encoding}`,
     };
 }
 
 void waitForCanvas().then(() => {
-    // Only the installed public capture contract is used; Eval supplies no replacement transport.
-    window.__harness = {
-        ready: true,
-        run,
-    };
-    (window as Window & { __shallotEvalGradeReady?: boolean }).__shallotEvalGradeReady = true;
+    // Eval owns this tiny probe entrypoint; capture itself remains the installed public seam.
+    const gradeWindow = window as GradeWindow;
+    gradeWindow.__shallotEvalGrade = { ready: true, run };
+    gradeWindow.__shallotEvalGradeReady = true;
 });

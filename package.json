@@ -6,12 +6,12 @@
     "scripts": {
         "setup": "bun run src/setup.ts",
         "grade": "bun run src/grade.ts",
-        "test": "shallot test",
-        "check": "tsc --noEmit && biome check && shallot test --list"
+        "test": "bun test --timeout=250",
+        "check": "tsc --noEmit && biome check"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.5.13",
-        "@dylanebert/shallot": "github:dylanebert/shallot#355dca344b9be4f68406198bfe156337be47cdee",
+        "@dylanebert/shallot": "github:dylanebert/shallot#5ceae0633dae262bcd90506a9cd7c1b1ba79b770",
         "@webgpu/types": "^0.1.72",
         "@types/bun": "^1.4.2",
         "playwright": "^1.63.0",
