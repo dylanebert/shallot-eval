@@ -1,12 +1,11 @@
 # Shallot Eval Contract
 
-This evaluation admits Bun `1.4.2` from `.bun-version`/`packageManager`. Its carrier is the installed
-`shallot` bin. Run `shallot test --list`, `bun run check`, and `bun run test`; these surface gates
-stay independent from task setup and grading.
+This evaluation admits Bun `1.4.2` from `.bun-version`/`packageManager`. Run `bun run check` and
+`bun run test`; these surface gates stay independent from task setup and grading.
 
 Eval owns the prompts, context arms, withheld task expectations, invocation records, and agent
-outcomes. Shallot owns the installed carrier, scheduler and observation mechanism, browser driver,
-capture contract, and tests of those mechanisms. Eval may consume those public exports. It does not
+outcomes. Shallot owns the scheduler and observation mechanism, the capture contract, and tests of those
+mechanisms; Eval owns its Playwright grading run. Eval may consume those public exports. It does not
 copy them, import Shallot source, archive engine paths, use a workspace link as evidence, turn task
 gates into a second engine-correctness population, or infer model capability from one run.
 
@@ -34,16 +33,15 @@ from an empty cache, followed by identity/realpath proof and a focused gate with
 `bun run setup <task>` creates an isolated temp app and copies only `PROMPT.md`; withheld claims and
 notes remain in this repository. The selected arm provides the installed packed package and its
 shipped public context. Setup records the exact source commit and artifact integrity in `.eval.json`.
-`bun run grade <task> <project>` runs the project's independent check/build gates, then calls the
-installed `@dylanebert/shallot/harness` `runBrowserCheck`. The temporary probe imports only the
-installed public `@dylanebert/shallot/harness/capture` `captureFrame` contract. It asserts the
+`bun run grade <task> <project>` runs the project's independent check/build gates, then runs Playwright
+Test against the project's own `vite preview`. The temporary probe imports only the installed public
+`@dylanebert/shallot/rendering` `captureFrame` contract. It asserts the
 existing task properties semantically over `final-canvas 1280x720@1 rgba8-tight`, never by a screenshot
 golden, CPU reconstruction of GPU truth, copied capture transport, or archived/private engine driver.
 A determined task failure is `FAIL`; a missing or unusable public instrument is `INCOMPLETE`, never
 green. Adapter identity, when present in the subject's existing output, is provenance only; Eval does
 not grade adapter class. Grading tears down its ephemeral app server and leaves no tabs.
 
-Task setup, grading, and the carrier's surface checks are separate gates. Empty changed-subject
-selection refuses rather than falling through to units. Product checks do not claim that carrier
-selection or task tooling proves engine correctness. An agent stall is an Eval discoverability
+Task setup, grading, and the surface checks are separate gates. Product checks do not claim that
+task tooling proves engine correctness. An agent stall is an Eval discoverability
 finding, not proof that an internal Shallot mechanism is broken.
