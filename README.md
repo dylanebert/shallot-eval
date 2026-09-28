@@ -1,9 +1,9 @@
 # shallot-eval
 
 Can a stock coding agent compose Shallot from the shipped package and complete a small user-shaped
-task? Each task has a with-context arm and a without-context arm. Setup builds an isolated project, an
-agent works in it, and a withheld gate grades the result through Shallot's public observation and
-capture exports. This repository owns the task prompts, arms, withheld expectations, invocation
+task? Each task has a with-context arm and a without-context arm. Setup builds an isolated project,
+an agent works in it, and a withheld gate grades it through the installed package's public observation
+and capture exports. This repository owns task prompts, arms, withheld expectations, invocation
 records, and outcomes. Shallot owns engine correctness and the mechanism that establishes it.
 
 `engine.json` pins the qualified source commit used for the installed package artifact preflight. A
@@ -11,19 +11,18 @@ single run does not produce a score, aggregate, model-capability conclusion, or 
 
 ## Surface Commands
 
-The repository admits six hermetic unit checks through the installed Shallot carrier. The default
-surface never runs task setup, task grading, a browser, or an engine clone.
+The default surface runs the cheap consumer checks. It never runs task setup, grading, a browser, or
+an engine clone.
 
 ```bash
 bun install
-shallot test --list
 bun run check
 bun run test
 ```
 
-The carrier is pinned as a dev-only dependency to a Shallot source commit, named in
-`package.json`. After `bun install`, these surface commands use the
-installed `shallot` bin and do not clone an engine.
+The Shallot package is pinned as a dev-only dependency to a full source commit in `package.json`.
+Task setup packs that commit separately for an out-of-tree generated app; this artifact preflight is
+not the consumer's staged source identity.
 
 ## The Contract
 
@@ -37,11 +36,13 @@ installed `shallot` bin and do not clone an engine.
 - **Gates assert positive behavior.** Each one drives the canvas, sends synthetic input where needed,
   and checks the task claim. The withheld task files remain outside the generated project.
 - **Public instrumentation owns observation.** Grading runs the project's independent check/build
-  gates, then uses the installed Shallot `runBrowserCheck` and `captureFrame` public contracts. Eval
-  does not copy a browser driver or capture transport. A task failure is `FAIL`; missing or unusable
-  public instrumentation is `INCOMPLETE`, not a pass.
-- **Surface cadence is separate from task gates.** `test` runs the six unit rows. Task
-  setup and grading remain explicit commands and are not default checks.
+  gates, then runs the withheld probe under Playwright Test against that project's own `vite preview`.
+  The probe imports only `captureFrame`, `Capture`, and `CAPTURE_CONTRACT` from the installed public
+  `@dylanebert/shallot/rendering` entrypoint. Eval does not copy the capture transport or a browser
+  driver. A task failure is `FAIL`; missing or unusable browser/GPU/public instrumentation is
+  `INCOMPLETE`, not a pass.
+- **Surface cadence is separate from task gates.** `test` runs the cheap `*.test.ts` suite with Bun.
+  Task setup and grading remain explicit commands and are not default checks.
 
 ## Tasks
 
@@ -65,9 +66,9 @@ bun run grade red-box <projectDir>
 
 `--bare` sets up the without-context arm: the tarball loses `examples/` and `AGENTS.md`, and the
 scaffold's agent docs lose their pointer to them. Run a task with and without it to observe the two
-arms. `--json` prints the task, candidate source identity, runtime seat, and artifact identity.
+arms. `setup --json` prints the task, source commit, and artifact identity; `grade --json` includes
+browser runtime and capture identity when available.
 
-The browser seat and fixed `final-canvas 1280x720@1 rgba8-tight` identity travel with the verdict.
-Fallback or missing GPU/Chromium premises refuse rather than pass. An agent stall is a product
-discoverability finding for Shallot's public API, CLI, examples, or docs, not evidence of an internal
-engine defect.
+The browser and fixed `final-canvas 1280x720@1 rgba8-tight` identity travel with the verdict.
+Missing GPU/Chromium premises refuse rather than pass. An agent stall is a product discoverability
+finding for Shallot's public API, CLI, examples, or docs, not evidence of an internal engine defect.
