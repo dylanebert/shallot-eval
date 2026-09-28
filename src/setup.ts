@@ -1,8 +1,8 @@
-// Set up one task's project: pack the qualified source candidate as a local artifact preflight,
-// scaffold a fresh project with the landed hosting-shape create-shallot template, install that artifact, and
+// Set up one task's project: pack the installed Shallot package as a local artifact preflight,
+// scaffold a fresh project with the landed create-shallot template, install that artifact, and
 // drop the task's PROMPT.md in. The project lands in an out-of-tree temp dir so the agent sees only
-// the selected public package/context; it cannot read the engine source. The withheld gate and notes
-// stay in this repository and are never copied into the project. Prints the project dir last.
+// the selected public package/context, not the source worktrees. The withheld gate and notes stay in
+// this repository and are never copied into the project. Prints the project dir last.
 //
 // `--bare` sets up the without-context arm of the shipped-context delta: the shipped `examples/` corpus
 // and AGENTS.md are removed from the tarball and the scaffold's agent docs lose the section pointing at
@@ -97,10 +97,10 @@ function main(): void {
             {
                 task,
                 bare,
-                engine: artifact.sourceCommit,
+                engine: artifact.identity,
                 artifact: {
                     kind: "local-pack-preflight",
-                    sourceCommit: artifact.sourceCommit,
+                    identity: artifact.identity,
                     sha256: artifact.sha256,
                 },
                 scaffold: {
@@ -119,7 +119,7 @@ function main(): void {
         console.log(
             JSON.stringify({
                 task,
-                engine: artifact.sourceCommit,
+                engine: artifact.identity,
                 artifactSha256: artifact.sha256,
                 project: proj,
                 work,

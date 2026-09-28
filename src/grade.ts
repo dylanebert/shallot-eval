@@ -10,6 +10,7 @@ import {
     writeFileSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
+import { type EngineIdentity, installedEngineIdentity } from "../scripts/engine";
 import { deriveResultKind } from "./result";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -57,7 +58,11 @@ function unusedPort(): number {
 
 type EvalRecord = {
     task?: string;
-    artifact?: { kind?: string; sourceCommit?: string; sha256?: string };
+    artifact?: {
+        kind?: string;
+        identity?: { version?: string; contentHash?: string };
+        sha256?: string;
+    };
 };
 
 function run(command: string[], cwd: string): CommandResult {
@@ -84,22 +89,16 @@ function fail(message: string, output = ""): never {
     process.exit(1);
 }
 
-function expectedSource(): string {
-    const engine = JSON.parse(readFileSync(join(ROOT, "engine.json"), "utf8")) as {
-        source?: unknown;
-    };
-    if (typeof engine.source !== "string") throw new Error("engine.json has no source identity");
-    const commit = engine.source.split("#").at(-1);
-    if (!commit) throw new Error("engine.json source has no commit identity");
-    return commit;
-}
-
 /**
  * Check the setup artifact boundary using filesystem and package metadata, not a source scan.
  * A grade may consume only a generated project with an installed packed Shallot package and the
  * matching immutable artifact record. Missing premises are unavailable instrumentation.
  */
-export function validateEvalProject(project: string, task: string): void {
+export function validateEvalProject(
+    project: string,
+    task: string,
+    engineIdentity: EngineIdentity = installedEngineIdentity(),
+): void {
     const recordPath = join(project, ".eval.json");
     const packagePath = join(project, "package.json");
     const installedPath = join(project, "node_modules/@dylanebert/shallot");
@@ -115,8 +114,17 @@ export function validateEvalProject(project: string, task: string): void {
     if (record.task !== task) throw new Error(`setup record task is not ${task}`);
     if (record.artifact?.kind !== "local-pack-preflight")
         throw new Error("setup record has no local package artifact identity");
-    if (record.artifact.sourceCommit !== expectedSource())
-        throw new Error("setup record source identity does not match engine.json");
+    const recordedIdentity = record.artifact.identity;
+    if (typeof recordedIdentity?.version !== "string")
+        throw new Error("setup record has no installed Shallot version");
+    if (!/^[0-9a-f]{64}$/.test(recordedIdentity.contentHash ?? ""))
+        throw new Error("setup record has no installed-package content hash");
+    if (
+        recordedIdentity.version !== engineIdentity.version ||
+        recordedIdentity.contentHash !== engineIdentity.contentHash
+    ) {
+        throw new Error("setup record identity does not match the installed Shallot package");
+    }
     if (!/^[0-9a-f]{64}$/.test(record.artifact.sha256 ?? ""))
         throw new Error("setup record has no SHA-256 package integrity");
 
@@ -127,9 +135,12 @@ export function validateEvalProject(project: string, task: string): void {
         throw new Error("installed Shallot package resolves outside the generated project");
     const installedManifest = JSON.parse(readFileSync(join(installed, "package.json"), "utf8")) as {
         name?: unknown;
+        version?: unknown;
     };
     if (installedManifest.name !== "@dylanebert/shallot")
         throw new Error("installed package is not the public Shallot package");
+    if (installedManifest.version !== engineIdentity.version)
+        throw new Error("generated project uses a different Shallot package version");
 
     const projectManifest = JSON.parse(readFileSync(packagePath, "utf8")) as {
         dependencies?: Record<string, unknown>;
@@ -254,8 +265,10 @@ const project = resolve(projectArg);
 if (!existsSync(join(project, "package.json"))) fail(`no project at ${project}`);
 
 let validationError: string | undefined;
+let engineIdentity: EngineIdentity | undefined;
 try {
-    validateEvalProject(project, task);
+    engineIdentity = installedEngineIdentity();
+    validateEvalProject(project, task, engineIdentity);
 } catch (error) {
     validationError = error instanceof Error ? error.message : String(error);
 }
@@ -345,6 +358,7 @@ if (validationError) {
         hardware: browser?.hardware,
         reproduction: browser?.reproduction,
         checks: browser?.checks ?? [],
+        shallot: engineIdentity,
         ...(instrumentationError ? { diagnostics: instrumentationError } : {}),
         ...(failureDiagnostics ? { failureDiagnostics } : {}),
     };

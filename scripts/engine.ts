@@ -1,92 +1,90 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import {
+    cpSync,
+    existsSync,
+    mkdirSync,
+    mkdtempSync,
+    readdirSync,
+    readFileSync,
+    rmSync,
+} from "node:fs";
+import { basename, join, relative, resolve, sep } from "node:path";
 
-// Source staging and grading artifact preflight are deliberately different states. Eval's persisted
-// carrier is the full-SHA Git identity in package.json/bun.lock. A setup run may pack that exact source
-// into a temporary directory so the generated app sees only installed package bytes; that tarball is
-// an artifact preflight, never Eval's staged dependency.
-const REPO = "https://github.com/dylanebert/shallot";
-export const engineSourceCommit = "49fbfcbe4b8d00673b2798c96ae25bbefa5f6060";
-
-/** the Eval repository root */
+/** The Eval repository root. */
 export const root = resolve(import.meta.dir, "..");
 
-/** the temporary source checkout used only to produce the grading artifact */
-export const engineRoot = join(tmpdir(), "shallot-eval-engine");
+/** The package Bun installed for Eval's Shallot dependency. */
+export const enginePackage = resolve(root, "node_modules/@dylanebert/shallot");
 
-const source = JSON.parse(readFileSync(resolve(root, "engine.json"), "utf8")) as {
-    source?: string;
-};
-if (source.source !== `github:dylanebert/shallot#${engineSourceCommit}`) {
-    throw new Error(
-        `engine.json must name the qualified source candidate github:dylanebert/shallot#${engineSourceCommit}`,
-    );
+export interface EngineIdentity {
+    version: string;
+    contentHash: string;
 }
 
-function run(cmd: string[], cwd: string): void {
-    const p = Bun.spawnSync(cmd, { cwd, stdout: "pipe", stderr: "pipe" });
-    if (p.exitCode !== 0) {
-        throw new Error(`${cmd.join(" ")} failed:\n${p.stdout.toString()}${p.stderr.toString()}`);
+/** Identify the installed package tree, including same-version staged builds. */
+export function installedEngineIdentity(packageRoot = enginePackage): EngineIdentity {
+    const manifestPath = resolve(packageRoot, "package.json");
+    if (!existsSync(manifestPath)) {
+        throw new Error("@dylanebert/shallot is not installed; run `bun install`");
     }
-}
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+        name?: unknown;
+        version?: unknown;
+    };
+    if (manifest.name !== "@dylanebert/shallot" || typeof manifest.version !== "string") {
+        throw new Error("the installed @dylanebert/shallot package has no valid identity");
+    }
 
-/** the engine package inside the checkout: the repo root, or packages/shallot before the hoist */
-function enginePackage(checkout: string): string {
-    const nested = resolve(checkout, "packages/shallot");
-    return existsSync(resolve(nested, "package.json")) ? nested : checkout;
+    const hash = new Bun.CryptoHasher("sha256");
+    const files: string[] = [];
+    const walk = (directory: string) => {
+        for (const entry of readdirSync(directory, { withFileTypes: true })) {
+            if ([".git", "node_modules", "target"].includes(entry.name)) continue;
+            const path = resolve(directory, entry.name);
+            if (entry.isDirectory()) walk(path);
+            else if (entry.isFile()) files.push(path);
+        }
+    };
+    walk(packageRoot);
+    for (const path of files.sort()) {
+        const rel = relative(packageRoot, path).split(sep).join("/");
+        hash.update(`\0${rel}\0`);
+        hash.update(readFileSync(path));
+    }
+    return { version: manifest.version, contentHash: hash.digest("hex") };
 }
 
 function sha256(path: string): string {
     return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
-/** Pack the exact qualified source for grading isolation and return its artifact identity. */
+/** Pack the installed public package for task setup's isolated artifact preflight. */
 export function engineArtifact(dest: string): {
     path: string;
-    sourceCommit: string;
+    identity: EngineIdentity;
     sha256: string;
 } {
-    const checkout = join(engineRoot, engineSourceCommit);
-    if (!existsSync(join(checkout, ".git"))) {
-        rmSync(checkout, { recursive: true, force: true });
-        mkdirSync(engineRoot, { recursive: true });
-        run(["git", "clone", "--quiet", REPO, checkout], root);
-    }
-    run(["git", "checkout", "--quiet", engineSourceCommit], checkout);
-    const pkg = enginePackage(checkout);
+    const identity = installedEngineIdentity();
     mkdirSync(dest, { recursive: true });
-    // A packed artifact is the isolation boundary for the generated app. Build/prepack may produce
-    // shipped bytes, but the identity remains the source commit recorded above.
-    if (!existsSync(join(checkout, "node_modules")))
-        run(["bun", "install", "--frozen-lockfile"], checkout);
-    const wasm = ["rust/audio/pkg", "crates/audio/pkg"]
-        .map((d) => join(pkg, d, "shallot_audio.wasm"))
-        .find(existsSync);
-    if (!wasm) {
-        const build = Bun.spawnSync(["bun", "run", "build"], {
-            cwd: checkout,
+    const staging = mkdtempSync(join(dest, ".shallot-pack-"));
+    const packageCopy = join(staging, "package");
+    const path = resolve(dest, `dylanebert-shallot-${identity.version}.tgz`);
+    try {
+        cpSync(enginePackage, packageCopy, {
+            recursive: true,
+            filter: (source) => ![".git", "node_modules", "target"].includes(basename(source)),
+        });
+        const pack = Bun.spawnSync(["tar", "-czf", path, "-C", staging, "package"], {
             stdout: "pipe",
             stderr: "pipe",
         });
-        if (build.exitCode !== 0) {
+        if (pack.exitCode !== 0) {
             throw new Error(
-                `engine build at ${engineSourceCommit} failed:\n${build.stderr.toString()}`,
+                `packing installed Shallot failed:\n${pack.stdout.toString()}${pack.stderr.toString()}`,
             );
         }
+        return { path, identity, sha256: sha256(path) };
+    } finally {
+        rmSync(staging, { recursive: true, force: true });
     }
-    run(["bun", "pm", "pack", "--destination", dest, "--quiet"], pkg);
-    const tgz = readdirSync(dest).find((file) => file.endsWith(".tgz") && !file.startsWith("."));
-    if (!tgz) throw new Error(`no Shallot artifact produced in ${dest}`);
-    const path = join(dest, tgz);
-    return { path, sourceCommit: engineSourceCommit, sha256: sha256(path) };
 }
-
-/** Compatibility name for the setup entrypoint; callers still receive the full artifact identity. */
-export function engineTarball(dest: string): string {
-    return engineArtifact(dest).path;
-}
-
-if (import.meta.path === Bun.main)
-    console.log(JSON.stringify(engineArtifact(join(engineRoot, "pack"))));

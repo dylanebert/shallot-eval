@@ -6,8 +6,9 @@ an agent works in it, and a withheld gate grades it through the installed packag
 and capture exports. This repository owns task prompts, arms, withheld expectations, invocation
 records, and outcomes. Shallot owns engine correctness and the mechanism that establishes it.
 
-`engine.json` pins the qualified source commit used for the installed package artifact preflight. A
-single run does not produce a score, aggregate, model-capability conclusion, or comparative claim.
+The consumer pins the published prerelease, and setup records the version and content hash of the
+installed Shallot package used for its artifact preflight. A single run does not produce a score,
+aggregate, model-capability conclusion, or comparative claim.
 
 ## Surface Commands
 
@@ -20,19 +21,20 @@ bun run check
 bun run test
 ```
 
-The Shallot package is pinned as a dev-only dependency to a full source commit in `package.json`.
-Task setup packs that commit separately for an out-of-tree generated app; this artifact preflight is
-not the consumer's staged source identity.
+The Shallot package is pinned as a dev-only dependency to `^0.10.0-next.1` in `package.json` and
+`bun.lock`. Task setup packs the installed package for an out-of-tree generated app; this artifact
+preflight is not the consumer's staged package state. The task app receives the package version,
+content hash and tar SHA-256 in `.eval.json`.
 
 ## The Contract
 
 - **The agent never sees the gate.** `tasks/<task>/gate.ts` and `NOTES.md` stay here. Setup copies
   only `PROMPT.md` into the isolated project.
-- **Isolation is an artifact preflight in a temp dir.** Setup packs the qualified source commit into
-  a temporary tarball, records its source SHA and tar SHA-256, and installs it into a fresh
+- **Isolation is an artifact preflight in a temp dir.** Setup packs the installed package into a
+  temporary tarball, records its version, content hash and tar SHA-256, and installs it into a fresh
   `create-shallot` project under the OS temp dir. The agent sees only the installed
-  `node_modules/@dylanebert/shallot` package and the context selected by its arm. It cannot use the
-  source checkout as evidence. This local pack is not the repository's source-staged identity.
+  `node_modules/@dylanebert/shallot` package and the context selected by its arm, not either source
+  worktree. This local pack is not the consumer's staged package state.
 - **Gates assert positive behavior.** Each one drives the canvas, sends synthetic input where needed,
   and checks the task claim. The withheld task files remain outside the generated project.
 - **Public instrumentation owns observation.** Grading runs the project's independent check/build
@@ -66,8 +68,8 @@ bun run grade red-box <projectDir>
 
 `--bare` sets up the without-context arm: the tarball loses `examples/` and `AGENTS.md`, and the
 scaffold's agent docs lose their pointer to them. Run a task with and without it to observe the two
-arms. `setup --json` prints the task, source commit, and artifact identity; `grade --json` includes
-browser runtime and capture identity when available.
+arms. `setup --json` prints the task, installed package identity, and artifact integrity;
+`grade --json` includes browser runtime and capture identity when available.
 
 The browser and fixed `final-canvas 1280x720@1 rgba8-tight` identity travel with the verdict.
 Missing GPU/Chromium premises refuse rather than pass. An agent stall is a product discoverability
