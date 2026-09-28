@@ -1,5 +1,5 @@
 // Set up one task's project: pack the qualified source candidate as a local artifact preflight,
-// scaffold a fresh project with the landed S1 create-shallot contract, install that artifact, and
+// scaffold a fresh project with the landed hosting-shape create-shallot template, install that artifact, and
 // drop the task's PROMPT.md in. The project lands in an out-of-tree temp dir so the agent sees only
 // the selected public package/context; it cannot read the engine source. The withheld gate and notes
 // stay in this repository and are never copied into the project. Prints the project dir last.
@@ -104,7 +104,7 @@ function main(): void {
                     sha256: artifact.sha256,
                 },
                 scaffold: {
-                    kind: "s1-scaffold-pack-preflight",
+                    kind: "create-shallot-pack-preflight",
                     sourceCommit: scaffoldPack.sourceCommit,
                     sha256: scaffoldPack.sha256,
                 },

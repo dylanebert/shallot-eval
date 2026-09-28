@@ -11,7 +11,7 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^2.5.13",
-        "@dylanebert/shallot": "github:dylanebert/shallot#5ceae0633dae262bcd90506a9cd7c1b1ba79b770",
+        "@dylanebert/shallot": "github:dylanebert/shallot#49fbfcbe4b8d00673b2798c96ae25bbefa5f6060",
         "@webgpu/types": "^0.1.72",
         "@types/bun": "^1.4.2",
         "playwright": "^1.63.0",

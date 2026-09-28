@@ -8,7 +8,7 @@ import { join, resolve } from "node:path";
 // into a temporary directory so the generated app sees only installed package bytes; that tarball is
 // an artifact preflight, never Eval's staged dependency.
 const REPO = "https://github.com/dylanebert/shallot";
-export const engineSourceCommit = "5ceae0633dae262bcd90506a9cd7c1b1ba79b770";
+export const engineSourceCommit = "49fbfcbe4b8d00673b2798c96ae25bbefa5f6060";
 
 /** the Eval repository root */
 export const root = resolve(import.meta.dir, "..");

@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
-// S1's scaffold is consumed as its landed packed artifact. It emits a stable application dependency;
-// this temporary pack is preflight for setup, not a persisted consumer state.
-export const scaffoldCommit = "345a1a4ef131eace085781871b44688fa11114b7";
+// The migrated create-shallot template is consumed as its landed packed artifact; this temporary
+// pack is setup preflight, not a persisted consumer dependency.
+export const scaffoldCommit = "aa2718e781475eaac00881cf4de8dd08ef459966";
 const REPO = "https://github.com/dylanebert/create-shallot";
 
 function run(command: string[], cwd: string): void {
