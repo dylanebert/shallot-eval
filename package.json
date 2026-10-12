@@ -4,8 +4,6 @@
     "type": "module",
     "packageManager": "bun@1.4.3",
     "scripts": {
-        "setup": "bun run src/setup.ts",
-        "grade": "bun run src/grade.ts",
         "test": "bun test --timeout=250",
         "lint": "biome check"
     },

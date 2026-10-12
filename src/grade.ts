@@ -259,7 +259,7 @@ const positional = args.filter(
 const [task, projectArg] = positional;
 const portIndex = args.indexOf("--port");
 if (!task || !projectArg || !TASKS.has(task) || (portIndex !== -1 && !args[portIndex + 1]))
-    fail("Usage: bun run grade <task> <projectDir> [--json] [--port <n>]");
+    fail("Usage: bun src/grade.ts <task> <projectDir> [--json] [--port <n>]");
 
 const project = resolve(projectArg);
 if (!existsSync(join(project, "package.json"))) fail(`no project at ${project}`);

@@ -19,7 +19,7 @@ gates into a second engine-correctness population, or infer model capability fro
   `package.json`/`bun.lock` hashes; the installed realpath must equal the producer. Exit with a fresh
   empty-cache `bun install --force --frozen-lockfile --cache-dir <cache>`, prove a non-producer
   realpath and the candidate identity, rerun the focused gate, and unlink the producer when finished.
-- The local pack made by `bun run setup` is **artifact preflight**, not source staging. It is copied
+- The local pack made by `bun src/setup.ts` is **artifact preflight**, not source staging. It is copied
   from the package installed under this repository, and `.eval.json` records its package version,
   content hash and tar SHA-256. Setup installs it only in the out-of-tree task app; its temporary
   package override never changes this repository's manifest or lockfile.
@@ -31,10 +31,10 @@ gate, and removal of the producer registration.
 
 ## Task And Frame Gates
 
-`bun run setup <task>` creates an isolated temp app and copies only `PROMPT.md`; withheld claims and
+`bun src/setup.ts <task>` creates an isolated temp app and copies only `PROMPT.md`; withheld claims and
 notes remain in this repository. The selected arm provides the installed packed package and its
 shipped public context. Setup records the installed package identity and artifact integrity in
-`.eval.json`. `bun run grade <task> <project>` runs the project's independent typecheck/build gates, then
+`.eval.json`. `bun src/grade.ts <task> <project>` runs the project's independent typecheck/build gates, then
 runs Playwright Test against the project's own `vite preview`. The temporary probe imports only the
 installed public `@dylanebert/shallot/rendering` `captureFrame` contract. It asserts the existing task
 properties semantically over `final-canvas 1280x720@1 rgba8-tight`, never by a screenshot golden, CPU

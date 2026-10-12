@@ -8,7 +8,7 @@
 // and AGENTS.md are removed from the tarball and the scaffold's agent docs lose the section pointing at
 // them. The agent keeps the code, its JSDoc and the product workflow (build/run).
 //
-// Run: `bun run setup <task> [--json] [--bare]`
+// Run: `bun src/setup.ts <task> [--json] [--bare]`
 
 import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -49,7 +49,7 @@ function main(): void {
     const bare = args.includes("--bare");
     const task = args.find((a) => !a.startsWith("--"));
     if (!task) {
-        console.error("Usage: bun run setup <task> [--json] [--bare]");
+        console.error("Usage: bun src/setup.ts <task> [--json] [--bare]");
         process.exit(1);
     }
 

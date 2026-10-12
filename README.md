@@ -62,15 +62,15 @@ content hash and tar SHA-256 in `.eval.json`.
 
 ```bash
 bun install
-bun run setup red-box          # prints the project dir on the last line
+bun src/setup.ts red-box       # prints the project dir on the last line
 # an agent works in that dir with PROMPT.md and the installed package
-bun run grade red-box <projectDir>
+bun src/grade.ts red-box <projectDir>
 ```
 
 `--bare` sets up the without-context arm: the tarball loses `examples/` and `AGENTS.md`, and the
 scaffold's agent docs lose their pointer to them. Run a task with and without it to observe the two
-arms. `setup --json` prints the task, installed package identity, and artifact integrity;
-`grade --json` includes browser runtime and capture identity when available.
+arms. `bun src/setup.ts <task> --json` prints the task, installed package identity, and artifact integrity;
+`bun src/grade.ts <task> <projectDir> --json` includes browser runtime and capture identity when available.
 
 The browser and fixed `final-canvas 1280x720@1 rgba8-tight` identity travel with the verdict.
 Missing GPU/Chromium premises refuse rather than pass. An agent stall is a product discoverability
