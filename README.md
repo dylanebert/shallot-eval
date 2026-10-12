@@ -17,7 +17,8 @@ an engine clone.
 
 ```bash
 bun install
-bun run check
+bun check
+bun run lint
 bun run test
 ```
 
@@ -37,7 +38,7 @@ content hash and tar SHA-256 in `.eval.json`.
   worktree. This local pack is not the consumer's staged package state.
 - **Gates assert positive behavior.** Each one drives the canvas, sends synthetic input where needed,
   and checks the task claim. The withheld task files remain outside the generated project.
-- **Public instrumentation owns observation.** Grading runs the project's independent check/build
+- **Public instrumentation owns observation.** Grading runs the project's independent typecheck/build
   gates, then runs the withheld probe under Playwright Test against that project's own `vite preview`.
   The probe imports only `captureFrame`, `Capture`, and `CAPTURE_CONTRACT` from the installed public
   `@dylanebert/shallot/rendering` entrypoint. Eval does not copy the capture transport or a browser

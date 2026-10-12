@@ -286,10 +286,7 @@ if (validationError) {
     );
     process.exitCode = 2;
 } else {
-    const commandResults = [
-        run(["bun", "run", "check"], project),
-        run(["bun", "run", "build"], project),
-    ];
+    const commandResults = [run(["bun", "check"], project), run(["bun", "run", "build"], project)];
     const typecheckOk = commandResults[0].ok;
     const buildOk = commandResults[1].ok;
     let gateOk: boolean | null = null;

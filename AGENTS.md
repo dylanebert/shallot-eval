@@ -1,7 +1,7 @@
 # Shallot Eval Contract
 
-This evaluation admits Bun `1.4.2` from `.bun-version`/`packageManager`. Run `bun run check` and
-`bun run test`; these surface gates stay independent from task setup and grading.
+This evaluation admits Bun `1.4.3` from `.bun-version`/`packageManager`. Run `bun check`,
+`bun run lint` and `bun run test`; these surface gates stay independent from task setup and grading.
 
 Eval owns the prompts, context arms, withheld task expectations, invocation records, and agent
 outcomes. Shallot owns the scheduler and observation mechanism, the capture contract, and tests of those
@@ -34,7 +34,7 @@ gate, and removal of the producer registration.
 `bun run setup <task>` creates an isolated temp app and copies only `PROMPT.md`; withheld claims and
 notes remain in this repository. The selected arm provides the installed packed package and its
 shipped public context. Setup records the installed package identity and artifact integrity in
-`.eval.json`. `bun run grade <task> <project>` runs the project's independent check/build gates, then
+`.eval.json`. `bun run grade <task> <project>` runs the project's independent typecheck/build gates, then
 runs Playwright Test against the project's own `vite preview`. The temporary probe imports only the
 installed public `@dylanebert/shallot/rendering` `captureFrame` contract. It asserts the existing task
 properties semantically over `final-canvas 1280x720@1 rgba8-tight`, never by a screenshot golden, CPU
