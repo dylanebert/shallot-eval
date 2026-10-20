@@ -41,7 +41,7 @@ export function silhouette(frame: Frame, background: Rgb): Span[] {
     return spans;
 }
 
-export function silhouetteDelta(a: Span[], b: Span[]): number {
+export function silhouetteDelta(a: Span[], b: Span[]): number | null {
     let changed = 0;
     let union = 0;
     for (let i = 0; i < a.length; i++) {
@@ -56,5 +56,5 @@ export function silhouetteDelta(a: Span[], b: Span[]): number {
         changed += areaA + areaB - 2 * overlap;
         union += areaA + areaB - overlap;
     }
-    return union === 0 ? Number.POSITIVE_INFINITY : changed / union;
+    return union === 0 ? null : changed / union;
 }

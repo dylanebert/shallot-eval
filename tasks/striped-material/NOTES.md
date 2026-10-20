@@ -19,11 +19,20 @@ Visible outline segments in those frames must also hold still (<2% maximum pairw
 difference/union). A foreground pixel differs from the corner background by >3 in any channel.
 Both rows and columns are scanned; a span is usable only if ≥90% of its pixels are foreground, and
 only spans usable in both frames are compared. This avoids mistaking moving background-coloured
-bands for moving outer edges. With no shared measurable spans, stability fails rather than passing.
+bands for moving outer edges. A frame pair with no shared measurable spans is undetermined (`null`),
+not stationary or moving evidence. A measured change ≥2% still determines outline failure. Otherwise,
+any missing pair leaves outline stability undetermined. Passing bands and motion with that missing
+observation grade `INCOMPLETE`. A separately determined task failure still grades `FAIL`; when all
+observations are determined, the grade remains `PASS` or `FAIL`.
+
 The background may be bright or dark; it must be sufficiently uniform for the corner sample to
-represent it. This rejects the Welcome-style turning striped fixture, including while allowing the
-known-good's white bands to blend with a white background. It does not prove stability of edges
-that cannot be distinguished from the background.
+represent it. The Welcome-style turning fixture has measurable outline motion and grades `FAIL`.
+Vertical animated bands on white retain measurable spans and grade `PASS`. The qualified
+`incomplete-diagonal-white-background.ts` fixture instead uses `(uv.x + uv.y) * 12` bands on white:
+bands matching the background break continuous spans along both axes. Its pattern and motion pass,
+but its outline is unmeasurable, so its expected verdict is `INCOMPLETE`. Final RGBA cannot tell an
+invisible boundary moving from a background-coloured band crossing a still boundary; no replacement
+outline heuristic is used to infer the missing observation.
 
 Common failure modes this catches: flat entity colour with no custom surface (fails band crossings);
 a static pattern that never moves (fails the frame-delta check); a plain spinning cube mistaken for

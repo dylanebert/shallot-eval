@@ -36,9 +36,22 @@ test("changing outline width or position changes the silhouette", () => {
     expect(silhouetteDelta(a, shifted)).toBeGreaterThan(0.02);
 });
 
-test("an absent silhouette is not stable evidence", () => {
+test("an absent silhouette is undetermined, not stable or moving evidence", () => {
     const empty = silhouette(frame([[0, 0, 0]]), bg);
-    expect(silhouetteDelta(empty, empty)).toBe(Number.POSITIVE_INFINITY);
+    expect(silhouetteDelta(empty, empty)).toBeNull();
+});
+
+test("diagonal background-coloured bands leave the outline undetermined", () => {
+    const white = { r: 255, g: 255, b: 255 };
+    const diagonal = (phase: number) =>
+        frame(
+            Array.from({ length: 12 }, (_, y) =>
+                Array.from({ length: 12 }, (_, x) => ((x + y + phase) % 4 < 2 ? 40 : 255)),
+            ),
+        );
+    expect(
+        silhouetteDelta(silhouette(diagonal(0), white), silhouette(diagonal(1), white)),
+    ).toBeNull();
 });
 
 test("white bands matching a white border do not invent outline motion", () => {

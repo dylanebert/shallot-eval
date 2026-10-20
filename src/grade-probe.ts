@@ -1,5 +1,6 @@
 import { CAPTURE_CONTRACT, type Capture, captureFrame } from "@dylanebert/shallot/rendering";
 import { type FallSample, fallEvidence } from "./falling";
+import { deriveGateOk } from "./result";
 import { silhouette, silhouetteDelta } from "./silhouette";
 
 interface Rgb {
@@ -9,7 +10,7 @@ interface Rgb {
 }
 interface Assertion {
     name: string;
-    ok: boolean;
+    ok: boolean | null;
     detail: string;
 }
 
@@ -18,7 +19,7 @@ type GradeWindow = Window & {
     __shallotEvalTask?: string;
     __shallotEvalGrade?: {
         ready: true;
-        run: () => Promise<{ ok: boolean; checks: Assertion[]; capture: string }>;
+        run: () => Promise<{ ok: boolean | null; checks: Assertion[]; capture: string }>;
     };
     __shallotEvalGradeReady?: boolean;
     __shallotEvalKeyboardReady?: boolean;
@@ -94,7 +95,7 @@ function diff(a: Capture, b: Capture): number {
     return total / (a.width * a.height * 3);
 }
 
-function assert(name: string, ok: boolean, detail: string): void {
+function assert(name: string, ok: boolean | null, detail: string): void {
     assertions.push({ name, ok, detail });
 }
 
@@ -335,15 +336,23 @@ async function stripedMaterial(): Promise<void> {
     const outlines = [first, second, third].map((frame) =>
         silhouette(frame, region(frame, 0, 0, 0.12, 0.12)),
     );
-    const outlineDelta = Math.max(
+    const deltas = [
         silhouetteDelta(outlines[0], outlines[1]),
         silhouetteDelta(outlines[1], outlines[2]),
         silhouetteDelta(outlines[0], outlines[2]),
+    ];
+    const outlineOk = deriveGateOk(
+        deltas.map((delta) => ({
+            ok: delta === null ? null : delta < 0.02,
+        })),
     );
+    const measuredDelta = Math.max(...deltas.filter((delta) => delta !== null));
     assert(
         "the cube silhouette holds still while its pattern moves",
-        outlineDelta < 0.02,
-        `max silhouette change ${(outlineDelta * 100).toFixed(2)}% (limit 2%)`,
+        outlineOk,
+        outlineOk === null
+            ? "undetermined: no shared measurable outline spans in at least one frame pair; background-coloured bands can hide the boundary"
+            : `max measured silhouette change ${(measuredDelta * 100).toFixed(2)}% (limit 2%)`,
     );
     assert(
         "the surface shows a pattern, not a flat colour",
@@ -357,7 +366,7 @@ async function stripedMaterial(): Promise<void> {
     );
 }
 
-async function run(): Promise<{ ok: boolean; checks: Assertion[]; capture: string }> {
+async function run(): Promise<{ ok: boolean | null; checks: Assertion[]; capture: string }> {
     await waitForCanvas();
     const task = (window as GradeWindow).__shallotEvalTask;
     if (task === "red-box") await redBox();
@@ -368,7 +377,7 @@ async function run(): Promise<{ ok: boolean; checks: Assertion[]; capture: strin
     else if (task === "striped-material") await stripedMaterial();
     else throw new Error(`unknown withheld task ${task}`);
     return {
-        ok: assertions.every((entry) => entry.ok),
+        ok: deriveGateOk(assertions),
         checks: assertions,
         capture: `final-canvas ${CAPTURE_CONTRACT.width}x${CAPTURE_CONTRACT.height}@${CAPTURE_CONTRACT.deviceScale} rgba8-tight`,
     };

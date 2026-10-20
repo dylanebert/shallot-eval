@@ -11,15 +11,15 @@
       "version": "0.10.1-next.5",
       "contentHash": "cdd8fd40d15a7ddef47c1a9fa3c88b2c4084c89f647539eb020aafca9410ea15"
     },
-    "sha256": "5453ca313246bb538b2fb3f516cbc4dc347cf3fe08861e0b96ea136441d0d96a"
+    "sha256": "54274c82811162ebb1bd57a84c9a712d2ab6cf567e9f1547bad11d939dfb3201"
   },
   "scaffold": {
     "kind": "installed-engine-create",
     "version": "0.10.1-next.5"
   },
-  "created": "2026-10-20T22:25:14.832Z",
-  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-aIG7rS/app",
-  "work": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-aIG7rS",
+  "created": "2026-10-20T22:59:34.052Z",
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-YpLyZB/app",
+  "work": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-YpLyZB",
   "guidanceVerification": {
     "equalsPublishedSkillBody": true,
     "sha256": "6823960b3a59d8e8be1a5e830e702abe45e7a9195357f1c7755476779ec6fa4e",

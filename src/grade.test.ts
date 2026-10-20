@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { deriveResultKind, resultKindToPass } from "./result";
+import { deriveGateOk, deriveResultKind, resultKindToPass } from "./result";
 
 test("staging failure with successful build derives INCOMPLETE", () => {
     // The invariant: a staging failure (gate never ran, gateOk=null) with ok typecheck and build
@@ -8,6 +8,19 @@ test("staging failure with successful build derives INCOMPLETE", () => {
     expect(kind).toBe("INCOMPLETE");
     expect(resultKindToPass(kind)).toBe(null);
 }, 250);
+
+test("an unmeasurable outline with passing bands and motion derives INCOMPLETE", () => {
+    const gateOk = deriveGateOk([{ ok: null }, { ok: true }, { ok: true }]);
+    expect(gateOk).toBeNull();
+    expect(deriveResultKind(true, true, gateOk)).toBe("INCOMPLETE");
+});
+
+test("determined observations remain PASS or FAIL, including beside an unknown", () => {
+    expect(deriveGateOk([{ ok: true }, { ok: true }])).toBe(true);
+    expect(deriveGateOk([{ ok: false }, { ok: true }])).toBe(false);
+    expect(deriveGateOk([{ ok: null }, { ok: false }])).toBe(false);
+    expect(deriveResultKind(true, true, deriveGateOk([{ ok: null }, { ok: false }]))).toBe("FAIL");
+});
 
 test("determined typecheck or build failure derives FAIL", () => {
     // A staging failure does not launder a determined typecheck/build failure into INCOMPLETE.

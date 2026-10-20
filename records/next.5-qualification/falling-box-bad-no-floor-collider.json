@@ -1,6 +1,6 @@
 {
   "task": "falling-box",
-  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-WapFyb/app",
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-lvNMnT/app",
   "result": "FAIL",
   "commands": [
     {
@@ -9,7 +9,7 @@
         "check"
       ],
       "ok": true,
-      "output": "\u2713 No type errors in 237 files [98.47ms]"
+      "output": "\u2713 No type errors in 237 files [317.05ms]"
     },
     {
       "command": [
@@ -18,7 +18,7 @@
         "build"
       ],
       "ok": true,
-      "output": "vite v8.3.4 building client environment for production...\ntransforming...\n\u2713 429 modules transformed.\nrendering chunks...\n[plugin shallot] pruned 2 orphaned asset(s), 215KB\ncomputing gzip size...\ndist/index.html                                 0.25 kB \u2502 gzip:     0.20 kB\ndist/assets/kernel.shared.wasm-C6QEu7Cy.js  1,490.85 kB \u2502 gzip:   396.53 kB\ndist/assets/index-DeLpj8q1.js               3,226.00 kB \u2502 gzip: 1,165.31 kB\n\n\u2713 built in 841ms\n\n$ vite build\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit."
+      "output": "vite v8.3.4 building client environment for production...\ntransforming...\n\u2713 429 modules transformed.\nrendering chunks...\n[plugin shallot] pruned 2 orphaned asset(s), 215KB\ncomputing gzip size...\ndist/index.html                                 0.25 kB \u2502 gzip:     0.20 kB\ndist/assets/kernel.shared.wasm-C6QEu7Cy.js  1,490.85 kB \u2502 gzip:   396.53 kB\ndist/assets/index-DeLpj8q1.js               3,226.00 kB \u2502 gzip: 1,165.31 kB\n\n\u2713 built in 1.66s\n\n$ vite build\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit."
     }
   ],
   "runtime": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
@@ -30,12 +30,12 @@
     {
       "name": "a blue box stays visible throughout the observation",
       "ok": false,
-      "detail": "22/135 visible samples"
+      "detail": "17/76 visible samples"
     },
     {
       "name": "the box settled across the final interval",
       "ok": false,
-      "detail": "final interval 2016ms, centroid spread Infinity"
+      "detail": "final interval 1998ms, centroid spread Infinity"
     }
   ],
   "shallot": {
@@ -47,12 +47,12 @@
       {
         "name": "a blue box stays visible throughout the observation",
         "ok": false,
-        "detail": "22/135 visible samples"
+        "detail": "17/76 visible samples"
       },
       {
         "name": "the box settled across the final interval",
         "ok": false,
-        "detail": "final interval 2016ms, centroid spread Infinity"
+        "detail": "final interval 1998ms, centroid spread Infinity"
       }
     ]
   }

@@ -26,16 +26,16 @@ const TASKS = new Set([
 ]);
 
 type CommandResult = { command: string[]; ok: boolean; output: string };
-type Assertion = { name: string; ok: boolean; detail: string };
+type Assertion = { name: string; ok: boolean | null; detail: string };
 type BrowserGrade = {
-    ok: boolean;
+    ok: boolean | null;
     runtime?: string;
     hardware?: unknown;
     reproduction?: { capture?: string };
     checks?: Assertion[];
 };
 type ProbeResult = {
-    ok: boolean;
+    ok: boolean | null;
     checks: Assertion[];
     capture: string;
     runtime?: string;
@@ -161,7 +161,8 @@ export default {
     outputDir: ${JSON.stringify(join(gradeDir, "test-results"))},
     testMatch: "grade.e2e.ts",
     timeout: 20_000,
-    globalTimeout: 12_000,
+    // Allow the 30s preview startup and 20s test budgets, plus teardown.
+    globalTimeout: 60_000,
     fullyParallel: false,
     workers: 1,
     reporter: "list",
@@ -232,7 +233,7 @@ test("withheld task claims", async ({ page }) => {
     const pendingResult = page.evaluate(async () => {
         const grade = (window as Window & {
             __shallotEvalGrade?: {
-                run: () => Promise<{ ok: boolean; checks: { name: string; ok: boolean; detail: string }[]; capture: string }>;
+                run: () => Promise<{ ok: boolean | null; checks: { name: string; ok: boolean | null; detail: string }[]; capture: string }>;
             };
         }).__shallotEvalGrade;
         if (!grade) throw new Error("grade refused: withheld probe did not initialize");
@@ -322,7 +323,7 @@ if (validationError) {
             const specPath = join(gradeDir, "grade.e2e.ts");
             const configPath = join(gradeDir, "playwright.config.ts");
             const resultPath = join(gradeDir, "result.json");
-            for (const file of ["grade-probe.ts", "silhouette.ts", "falling.ts"])
+            for (const file of ["grade-probe.ts", "silhouette.ts", "falling.ts", "result.ts"])
                 cpSync(join(ROOT, "src", file), join(probeDir, file));
             try {
                 const built = await Bun.build({
@@ -345,18 +346,23 @@ if (validationError) {
                 } else {
                     const verdict = JSON.parse(readFileSync(resultPath, "utf8")) as ProbeResult;
                     const checks = verdict.checks ?? [];
-                    const failedChecks = checks.filter((check) => !check.ok);
+                    const failedChecks = checks.filter((check) => check.ok === false);
                     browser = {
                         ok: verdict.ok,
                         runtime: verdict.runtime,
                         hardware: verdict.hardware,
                         reproduction: { capture: verdict.capture },
-                        checks: verdict.ok ? checks : failedChecks,
+                        checks: verdict.ok === false ? failedChecks : checks,
                     };
                     gateOk = verdict.ok;
                     // The semantic result is the probe's completed assertions. A Playwright process
                     // failure without that result remains instrumentation failure, never a pass.
-                    if (!verdict.ok) failureDiagnostics = { checks: failedChecks };
+                    if (verdict.ok === false) failureDiagnostics = { checks: failedChecks };
+                    if (verdict.ok === null)
+                        instrumentationError = checks
+                            .filter((check) => check.ok === null)
+                            .map((check) => `${check.name}: ${check.detail}`)
+                            .join("; ");
                 }
             } catch (error) {
                 instrumentationError = error instanceof Error ? error.message : String(error);

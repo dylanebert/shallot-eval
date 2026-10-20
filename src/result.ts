@@ -3,11 +3,17 @@
 // (argv parsing, top-level await) that is not imported by tests, so this sibling module is
 // what a test imports and calls directly instead of reading `grade.ts`'s source as an AST.
 //
-// INCOMPLETE is reserved for a run where NOTHING determined the outcome — the browser gate never ran
-// (no browser/GPU/preview premise, a staging failure, no result) and typecheck/build both held. A determined typecheck
-// or build failure outranks an unrunnable gate: it is a legitimate FAIL even when the gate never ran,
-// never laundered into "could not measure" about a task this run did measure and fail.
+// INCOMPLETE means no failure was determined but a required observation is unavailable, whether
+// the browser gate never ran or a completed probe could not measure a task property. A determined
+// typecheck, build or task-assertion failure still outranks an unavailable observation.
 export type ResultKind = "PASS" | "FAIL" | "INCOMPLETE";
+
+/** A missing observation never counts as success; a determined task failure remains decisive. */
+export function deriveGateOk(checks: readonly { ok: boolean | null }[]): boolean | null {
+    if (checks.some((check) => check.ok === false)) return false;
+    if (checks.some((check) => check.ok === null)) return null;
+    return true;
+}
 
 export function deriveResultKind(
     typecheckOk: boolean,
@@ -17,7 +23,7 @@ export function deriveResultKind(
     // A determined failure is decisive regardless of whether the gate ever ran.
     if (typecheckOk === false || buildOk === false) return "FAIL";
     // Typecheck and build both held; the gate is the only remaining input. Its null means the browser
-    // gate never determined an outcome (missing premise, staging failure, no result) — INCOMPLETE.
+    // gate could not determine a required observation — INCOMPLETE.
     if (gateOk === null) return "INCOMPLETE";
     return gateOk ? "PASS" : "FAIL";
 }

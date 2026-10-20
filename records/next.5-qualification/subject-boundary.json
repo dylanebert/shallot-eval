@@ -2,81 +2,89 @@
   {
     "task": "falling-box",
     "fixture": "good",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-WapFyb/app",
-    "beforeSha256": "f0a84e7f35a684835a1ae2d322766f4e042959087ec54a73e7bba96e1291c1cd",
-    "afterSha256": "f0a84e7f35a684835a1ae2d322766f4e042959087ec54a73e7bba96e1291c1cd",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-lvNMnT/app",
+    "beforeSha256": "7b8e4a3889657a923eadd0d407b62aac8170e0bf3b86974c31a58832ce35bbfc",
+    "afterSha256": "7b8e4a3889657a923eadd0d407b62aac8170e0bf3b86974c31a58832ce35bbfc",
     "unchanged": true
   },
   {
     "task": "falling-box",
     "fixture": "bad",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-WapFyb/app",
-    "beforeSha256": "0a2dfaa6c3b43c884c80c576892b851e3b53e218d8be58fdbe3f9706942d84c5",
-    "afterSha256": "0a2dfaa6c3b43c884c80c576892b851e3b53e218d8be58fdbe3f9706942d84c5",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-lvNMnT/app",
+    "beforeSha256": "9e6460d45640e8f7946787e7a1fc95628c248410f708fa8900e995e8ef258030",
+    "afterSha256": "9e6460d45640e8f7946787e7a1fc95628c248410f708fa8900e995e8ef258030",
     "unchanged": true
   },
   {
     "task": "falling-box",
     "fixture": "bad-no-floor-collider",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-WapFyb/app",
-    "beforeSha256": "750ab67ef5042bfcd5a8aee94bce7d6486899823b3b89438318b952396379a7d",
-    "afterSha256": "750ab67ef5042bfcd5a8aee94bce7d6486899823b3b89438318b952396379a7d",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-lvNMnT/app",
+    "beforeSha256": "1b234af8067eae65ecc0eb0941fbb7110fdfe3c9f83b63132d3e375ad1e34cf0",
+    "afterSha256": "1b234af8067eae65ecc0eb0941fbb7110fdfe3c9f83b63132d3e375ad1e34cf0",
     "unchanged": true
   },
   {
     "task": "color-on-key",
     "fixture": "good",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-MkTSn2/app",
-    "beforeSha256": "7f995d4d67e605ce3af4f5e1f8368f92afa1bfb96c23dbd515ef5a0d18f23e55",
-    "afterSha256": "7f995d4d67e605ce3af4f5e1f8368f92afa1bfb96c23dbd515ef5a0d18f23e55",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-E98CDO/app",
+    "beforeSha256": "f9772f9b3917ee62ac6410ff2ddbf5c71c8a9ff4ebd9f1316a7b28f413f48382",
+    "afterSha256": "f9772f9b3917ee62ac6410ff2ddbf5c71c8a9ff4ebd9f1316a7b28f413f48382",
     "unchanged": true
   },
   {
     "task": "color-on-key",
     "fixture": "bad",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-MkTSn2/app",
-    "beforeSha256": "739dcebe799c17ec69838d92126a130209db0d9e767d0eeae624e176eb990518",
-    "afterSha256": "739dcebe799c17ec69838d92126a130209db0d9e767d0eeae624e176eb990518",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-E98CDO/app",
+    "beforeSha256": "670468c5c13ae3f6bea0ba88bc06c7e83892a8f571f883f7f32a5b2710fd0878",
+    "afterSha256": "670468c5c13ae3f6bea0ba88bc06c7e83892a8f571f883f7f32a5b2710fd0878",
     "unchanged": true
   },
   {
     "task": "color-on-key",
     "fixture": "good-document",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-MkTSn2/app",
-    "beforeSha256": "e5bc3c7206554a84722096a5e19ef176fc2440a6a1a3d63ac0fb54d57167e476",
-    "afterSha256": "e5bc3c7206554a84722096a5e19ef176fc2440a6a1a3d63ac0fb54d57167e476",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-E98CDO/app",
+    "beforeSha256": "a8583de98c71d48024a9fb49b3bf8cedad3a8a18d468a7fa31b9f7bc96eb796f",
+    "afterSha256": "a8583de98c71d48024a9fb49b3bf8cedad3a8a18d468a7fa31b9f7bc96eb796f",
     "unchanged": true
   },
   {
     "task": "striped-material",
     "fixture": "good",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-aIG7rS/app",
-    "beforeSha256": "43f78bf0826282b0e64ab5809fd8dccb7271a3bcc0a2f2c020b52dac9b0b484a",
-    "afterSha256": "43f78bf0826282b0e64ab5809fd8dccb7271a3bcc0a2f2c020b52dac9b0b484a",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-YpLyZB/app",
+    "beforeSha256": "a818c02b0b629ed4025c703ca31ed16b6f15b5fae4156ff7791b90df9aa3ae50",
+    "afterSha256": "a818c02b0b629ed4025c703ca31ed16b6f15b5fae4156ff7791b90df9aa3ae50",
     "unchanged": true
   },
   {
     "task": "striped-material",
     "fixture": "bad",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-aIG7rS/app",
-    "beforeSha256": "708718505a3acd2516d2d9722b00357cf208859519d615a61d1c798153d2bac9",
-    "afterSha256": "708718505a3acd2516d2d9722b00357cf208859519d615a61d1c798153d2bac9",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-YpLyZB/app",
+    "beforeSha256": "b94ba00650acde4b491031ca59c53768213444f00bf27387d351b315a1d5cdad",
+    "afterSha256": "b94ba00650acde4b491031ca59c53768213444f00bf27387d351b315a1d5cdad",
     "unchanged": true
   },
   {
     "task": "striped-material",
     "fixture": "bad-turning",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-aIG7rS/app",
-    "beforeSha256": "334ab1dcea938346c29c9d9fe6d75e5a33f8a3a0c69e3a857b737f526d508adf",
-    "afterSha256": "334ab1dcea938346c29c9d9fe6d75e5a33f8a3a0c69e3a857b737f526d508adf",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-YpLyZB/app",
+    "beforeSha256": "9809a1329038775a8c03bfb7fbf781748694fc15ce1837cb4aaf666107069be0",
+    "afterSha256": "9809a1329038775a8c03bfb7fbf781748694fc15ce1837cb4aaf666107069be0",
     "unchanged": true
   },
   {
     "task": "striped-material",
     "fixture": "good-white-background",
-    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-aIG7rS/app",
-    "beforeSha256": "5411432f53cf32555694e4a0baa30b01beb8144ee02ab7d4a3d7fdfbc9baaf2b",
-    "afterSha256": "5411432f53cf32555694e4a0baa30b01beb8144ee02ab7d4a3d7fdfbc9baaf2b",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-YpLyZB/app",
+    "beforeSha256": "6b868991277180ed53389016a77216245aaadab17e573948e8fcc028d3730f8d",
+    "afterSha256": "6b868991277180ed53389016a77216245aaadab17e573948e8fcc028d3730f8d",
+    "unchanged": true
+  },
+  {
+    "task": "striped-material",
+    "fixture": "incomplete-diagonal-white-background",
+    "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-YpLyZB/app",
+    "beforeSha256": "8be24d439ff96ef2575ffb506ccba03c5fdeff56299180eae67cfe1a2dafbea7",
+    "afterSha256": "8be24d439ff96ef2575ffb506ccba03c5fdeff56299180eae67cfe1a2dafbea7",
     "unchanged": true
   }
 ]
