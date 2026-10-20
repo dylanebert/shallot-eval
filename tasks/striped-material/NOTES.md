@@ -15,9 +15,13 @@ while a flat cube face is near-constant and even a spinning flat cube shows at m
 step (≤ 1 crossing). Three frames sampled over ~1.1s at two different gaps, camera untouched, must
 differ (max pairwise mean-abs > 0.5) — a settled static scene is bit-static (delta 0.00), so any change
 is the pattern animating; the two gaps keep a pattern whose period aliases one interval from reading as
-static. The crossing count is the discriminator against a flat or rigid-spinning cube; the peak-to-peak
-floor keeps antialiasing wobble from counting.
+static. In those same frames, foreground row envelopes must hold still: their maximum pairwise
+symmetric difference divided by their union must be <2%. Foreground differs from the corner
+background colour by >25 in any channel; filling each row between its outer edges ignores internal
+band changes. This assumes a plain contrasting background and allows small edge/antialiasing changes.
+It rejects a turning striped cube whose silhouette changes, not just a flat turning cube. The
+peak-to-peak floor keeps antialiasing wobble from counting as bands.
 
 Common failure modes this catches: flat entity colour with no custom surface (fails band crossings);
 a static pattern that never moves (fails the frame-delta check); a plain spinning cube mistaken for
-"alive" (flat face → fails band crossings even though it moves).
+"alive" (fails band crossings); static stripes on a turning cube (fails silhouette stability).

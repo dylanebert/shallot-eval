@@ -302,7 +302,13 @@ if (validationError) {
         const specPath = join(gradeDir, "grade.e2e.ts");
         const configPath = join(gradeDir, "playwright.config.ts");
         const resultPath = join(gradeDir, "result.json");
-        writeFileSync(probePath, readFileSync(join(ROOT, "src/grade-probe.ts")));
+        writeFileSync(
+            probePath,
+            readFileSync(join(ROOT, "src/grade-probe.ts"), "utf8").replace(
+                '"./silhouette"',
+                JSON.stringify(join(ROOT, "src/silhouette.ts")),
+            ),
+        );
         try {
             const built = await Bun.build({
                 entrypoints: [probePath],

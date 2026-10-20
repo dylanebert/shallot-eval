@@ -1,4 +1,5 @@
 import { CAPTURE_CONTRACT, type Capture, captureFrame } from "@dylanebert/shallot/rendering";
+import { silhouette, silhouetteDelta } from "./silhouette";
 
 interface Rgb {
     r: number;
@@ -317,6 +318,19 @@ async function stripedMaterial(): Promise<void> {
     const y = bands(faceProfile(first, "y", (bg.r + bg.g + bg.b) / 3));
     const pp = Math.max(x.pp, y.pp);
     const crossings = Math.max(x.crossings, y.crossings);
+    const outlines = [first, second, third].map((frame) =>
+        silhouette(frame, region(frame, 0, 0, 0.12, 0.12)),
+    );
+    const outlineDelta = Math.max(
+        silhouetteDelta(outlines[0], outlines[1]),
+        silhouetteDelta(outlines[1], outlines[2]),
+        silhouetteDelta(outlines[0], outlines[2]),
+    );
+    assert(
+        "the cube silhouette holds still while its pattern moves",
+        outlineDelta < 0.02,
+        `max silhouette change ${(outlineDelta * 100).toFixed(2)}% (limit 2%)`,
+    );
     assert(
         "the surface shows a pattern, not a flat colour",
         pp > 30 && crossings >= 2,
