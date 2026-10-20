@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { foregroundColor } from "./foreground";
+import { foregroundColor, isWhite } from "./foreground";
 
 function frame(background: number[], color?: number[], size = 2) {
     const width = 100;
@@ -35,4 +35,22 @@ test("foreground is measured by contrast in either direction, not target hue", (
 test("absent or background-indistinguishable cube is undetermined, not a colour", () => {
     expect(foregroundColor(frame([16, 16, 16]))).toBeNull();
     expect(foregroundColor(frame([16, 16, 16], [19, 16, 16]))).toBeNull();
+    expect(foregroundColor(frame([196, 196, 196], [196, 196, 196]))).toBeNull();
+});
+
+test("white must be bright and neutral, allowing the lit trial cube's channel spread", () => {
+    expect(isWhite({ r: 175, g: 176, b: 181 })).toBe(true);
+    expect(isWhite({ r: 200, g: 172, b: 172 })).toBe(false);
+    expect(isWhite({ r: 110, g: 110, b: 112 })).toBe(false);
+});
+
+test("a cube touching the border does not tint the dominant background estimate", () => {
+    const image = frame([16, 16, 16]);
+    for (let y = 30; y < 70; y++)
+        for (let x = 80; x < 100; x++)
+            image.rgba.set([196, 196, 196, 255], (y * image.width + x) * 4);
+    expect(foregroundColor(image)).toEqual({
+        color: { r: 196, g: 196, b: 196 },
+        pixels: 40 * 19,
+    });
 });

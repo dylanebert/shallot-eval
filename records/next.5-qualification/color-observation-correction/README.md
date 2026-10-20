@@ -1,5 +1,9 @@
 # Color observation correction
 
+Historical first correction on `513d8489`. The [review correction addendum](../color-review-correction/README.md)
+adds white neutrality, bounded green persistence and robust border estimation. Its records retain
+all fixture verdicts here and supersede the mean-background/single-green-sample observation below.
+
 This addendum supersedes the original color gate's fixed central-region observation, not the
 stock-agent session. The original qualification records remain historical evidence. Their large
 known-good cube masked an unrequested size assumption: averaging background into a smaller white

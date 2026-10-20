@@ -139,8 +139,19 @@ The failure belonged to the evaluator's unrequested minimum-size assumption, not
 and after, including installed dependencies (symlinks hashed as link text). This is a re-grade,
 not a trial retry. The session, prompt, implementation and original agent wall time are unchanged.
 
-The correction is qualified on all earlier color fixtures plus a smaller known-good and an absent
-cube: [qualification addendum](../next.5-qualification/color-observation-correction/README.md).
+The first correction was qualified on all earlier color fixtures plus a smaller known-good and an
+absent cube: [first addendum](../next.5-qualification/color-observation-correction/README.md).
+
+After review `r-stranger-trial-2`, the gate additionally requires neutral white, samples green across
+a bounded post-press interval, and uses the border's dominant RGB instead of its mean. The latest
+[grade-reviewed.json](color-on-key/grade-reviewed.json) is **PASS**: white **175,176,181** becomes
+**62,161,73** in all 11 post-Space samples, actual **651–3061ms**. It supersedes the first corrected
+grade as the current evidence; both earlier grades remain unchanged. The new
+[boundary record](color-on-key/regrade-reviewed-boundary.json) again proves equal subject hashes.
+No agent invocation or project edit occurred. [Review qualification](../next.5-qualification/color-review-correction/README.md)
+records pink-start FAIL, brief-green FAIL, border-touching good PASS, all earlier verdicts retained,
+and white-on-white INCOMPLETE. All three review defects belong to the evaluator gate; they do not
+change the owning-surface reading of this agent session.
 
 ### Reading and checks
 

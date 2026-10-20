@@ -1,6 +1,6 @@
 import { CAPTURE_CONTRACT, type Capture, captureFrame } from "@dylanebert/shallot/rendering";
 import { type FallSample, fallEvidence } from "./falling";
-import { foregroundColor } from "./foreground";
+import { foregroundColor, isGreen, isWhite } from "./foreground";
 import { deriveGateOk } from "./result";
 import { silhouette, silhouetteDelta } from "./silhouette";
 
@@ -217,7 +217,7 @@ async function colorOnKey(): Promise<void> {
     const before = foregroundColor(await shot());
     assert(
         "cube starts white",
-        before ? before.color.r > 150 && before.color.g > 150 && before.color.b > 150 : null,
+        before ? isWhite(before.color) : null,
         before
             ? `${before.color.r | 0},${before.color.g | 0},${before.color.b | 0}; ${before.pixels} foreground pixels`
             : "undetermined: no cube pixels distinguishable from the border background",
@@ -225,19 +225,22 @@ async function colorOnKey(): Promise<void> {
     (window as GradeWindow).__shallotEvalKeyboardReady = true;
     while (!(window as GradeWindow).__shallotEvalKeyboardDone)
         await new Promise((resolve) => setTimeout(resolve, 10));
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const after = foregroundColor(await shot());
-    assert(
-        "spacebar turns it green",
-        after
-            ? after.color.g > 110 &&
-                  after.color.g > after.color.r + 40 &&
-                  after.color.g > after.color.b + 40
-            : null,
-        after
-            ? `${after.color.r | 0},${after.color.g | 0},${after.color.b | 0}; ${after.pixels} foreground pixels`
-            : "undetermined: no cube pixels distinguishable from the border background",
-    );
+    const pressed = performance.now();
+    // Observe the latched colour from 0.5 through 3 seconds, not only one transient frame.
+    for (let target = 500; target <= 3000; target += 250) {
+        await new Promise((resolve) =>
+            setTimeout(resolve, Math.max(0, pressed + target - performance.now())),
+        );
+        const after = foregroundColor(await shot());
+        const elapsed = Math.round(performance.now() - pressed);
+        assert(
+            target === 500 ? "spacebar turns it green" : `cube stays green at ${target}ms`,
+            after ? isGreen(after.color) : null,
+            after
+                ? `${after.color.r | 0},${after.color.g | 0},${after.color.b | 0}; ${after.pixels} foreground pixels; ${elapsed}ms after Space`
+                : `undetermined: no cube pixels distinguishable from the border background; ${elapsed}ms after Space`,
+        );
+    }
 }
 
 async function persistColor(): Promise<void> {

@@ -1,5 +1,10 @@
 # Evaluator qualification — 0.10.1-next.5
 
+**Latest color qualification:** [review corrections](color-review-correction/README.md) qualify
+neutral starting white, sustained green samples and a dominant-border background estimate. Pink
+start and brief green are FAIL; a border-touching cube is PASS; earlier fixtures retain their
+verdicts and white-on-white is INCOMPLETE. The unchanged retained trial app remains PASS.
+
 **Color observation correction:** the original fixed central sampling region assumed an unrequested
 minimum cube size. The [qualification addendum](color-observation-correction/README.md) replaces that
 observation with border-contrast foreground pixels, retains all earlier color fixture verdicts,
