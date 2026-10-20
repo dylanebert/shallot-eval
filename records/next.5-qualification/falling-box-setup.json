@@ -11,15 +11,15 @@
       "version": "0.10.1-next.5",
       "contentHash": "cdd8fd40d15a7ddef47c1a9fa3c88b2c4084c89f647539eb020aafca9410ea15"
     },
-    "sha256": "0cc325ef43727963e0fc7223d1e4bf751e76db3556272ef21e8ecfebf52c6f9a"
+    "sha256": "0d4d729b19665a9a028ded3582af4f050b04088c51ab1d71f81bfb7ee40a254b"
   },
   "scaffold": {
     "kind": "installed-engine-create",
     "version": "0.10.1-next.5"
   },
-  "created": "2026-10-20T22:13:25.071Z",
-  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-MeEcCI/app",
-  "work": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-MeEcCI",
+  "created": "2026-10-20T22:25:11.176Z",
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-WapFyb/app",
+  "work": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-WapFyb",
   "guidanceVerification": {
     "equalsPublishedSkillBody": true,
     "sha256": "6823960b3a59d8e8be1a5e830e702abe45e7a9195357f1c7755476779ec6fa4e",

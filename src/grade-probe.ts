@@ -1,4 +1,5 @@
 import { CAPTURE_CONTRACT, type Capture, captureFrame } from "@dylanebert/shallot/rendering";
+import { type FallSample, fallEvidence } from "./falling";
 import { silhouette, silhouetteDelta } from "./silhouette";
 
 interface Rgb {
@@ -20,6 +21,8 @@ type GradeWindow = Window & {
         run: () => Promise<{ ok: boolean; checks: Assertion[]; capture: string }>;
     };
     __shallotEvalGradeReady?: boolean;
+    __shallotEvalKeyboardReady?: boolean;
+    __shallotEvalKeyboardDone?: boolean;
 };
 const canvas = (): HTMLCanvasElement => {
     const element = document.querySelector("canvas");
@@ -140,25 +143,27 @@ async function redBox(): Promise<void> {
 }
 
 async function fallingBox(): Promise<void> {
-    const ys: number[] = [];
+    const samples: FallSample[] = [];
     const start = performance.now();
     while (performance.now() - start < 6_000) {
         const y = centroidY(await shot(), blue);
-        if (y !== null) ys.push(y);
+        samples.push({ ms: performance.now() - start, y });
     }
-    assert("a blue box is on screen", ys.length > 0, `${ys.length} blue samples`);
-    const rest = ys.at(-1);
-    const peak = Math.min(...ys);
+    const evidence = fallEvidence(samples);
+    assert(
+        "a blue box stays visible throughout the observation",
+        evidence.visible,
+        `${samples.filter((sample) => sample.y !== null).length}/${samples.length} visible samples`,
+    );
     assert(
         "the box fell (moved down)",
-        ys.length > 1 && rest !== undefined && rest - peak > 0.03,
-        `descent ${rest === undefined ? "missing" : (rest - peak).toFixed(3)}`,
+        evidence.descent > 0.03,
+        `descent ${evidence.descent.toFixed(3)}`,
     );
-    const tail = ys.slice(-2);
     assert(
-        "the box settled (stopped falling)",
-        tail.length === 2 && Math.abs(tail[1] - tail[0]) < 0.01,
-        "tail centroid delta",
+        "the box settled across the final interval",
+        evidence.settled,
+        `final interval ${evidence.duration.toFixed(0)}ms, centroid spread ${evidence.spread.toFixed(4)}`,
     );
 }
 
@@ -213,8 +218,9 @@ async function colorOnKey(): Promise<void> {
         before.r > 150 && before.g > 150 && before.b > 150,
         `${before.r | 0},${before.g | 0},${before.b | 0}`,
     );
-    window.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: " ", code: "Space" }));
-    window.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: " ", code: "Space" }));
+    (window as GradeWindow).__shallotEvalKeyboardReady = true;
+    while (!(window as GradeWindow).__shallotEvalKeyboardDone)
+        await new Promise((resolve) => setTimeout(resolve, 10));
     await new Promise((resolve) => setTimeout(resolve, 500));
     const after = region(await shot(), 0.4, 0.4, 0.6, 0.6);
     assert(
@@ -287,21 +293,29 @@ function bands(values: number[]): { pp: number; crossings: number } {
     return { pp, crossings };
 }
 
-function faceProfile(frame: Capture, axis: "x" | "y", background: number): number[] {
+function faceProfile(frame: Capture, axis: "x" | "y", background: Rgb): number[] {
     const count = Math.ceil((0.4 * (axis === "x" ? frame.width : frame.height)) / 2);
     const values: number[] = [];
+    const contrast: number[] = [];
     for (let i = 0; i < count; i++) {
         const t0 = 0.3 + (0.4 * i) / count;
         const t1 = 0.3 + (0.4 * (i + 1)) / count;
         const sample =
             axis === "x" ? region(frame, t0, 0.46, t1, 0.54) : region(frame, 0.46, t0, 0.54, t1);
         values.push((sample.r + sample.g + sample.b) / 3);
+        contrast.push(
+            Math.max(
+                Math.abs(sample.r - background.r),
+                Math.abs(sample.g - background.g),
+                Math.abs(sample.b - background.b),
+            ),
+        );
     }
-    const cut = background + 25;
     let lo = 0;
-    while (lo < values.length && values[lo] < cut) lo++;
+    while (lo < values.length && contrast[lo] <= 3) lo++;
+    if (lo === values.length) return [];
     let hi = values.length - 1;
-    while (hi > lo && values[hi] < cut) hi--;
+    while (hi > lo && contrast[hi] <= 3) hi--;
     lo = Math.min(lo + 2, hi);
     hi = Math.max(hi - 2, lo);
     return values.slice(lo, hi + 1);
@@ -314,8 +328,8 @@ async function stripedMaterial(): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 600));
     const third = await shot();
     const bg = region(first, 0, 0, 0.12, 0.12);
-    const x = bands(faceProfile(first, "x", (bg.r + bg.g + bg.b) / 3));
-    const y = bands(faceProfile(first, "y", (bg.r + bg.g + bg.b) / 3));
+    const x = bands(faceProfile(first, "x", bg));
+    const y = bands(faceProfile(first, "y", bg));
     const pp = Math.max(x.pp, y.pp);
     const crossings = Math.max(x.crossings, y.crossings);
     const outlines = [first, second, third].map((frame) =>

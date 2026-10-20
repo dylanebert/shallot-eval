@@ -8,11 +8,12 @@ What a correct project does:
 
 Gate observation: after navigation and probe initialization, the probe waits for a 1280×720 canvas
 and two animation frames, then samples the blue-pixel centroid for six seconds through public
-capture. It does not reload or wait for the scene to settle before sampling. Descent means the last
-visible centroid is >0.03 below the highest observed centroid; settled means the last two visible
-samples agree within 0.01. The observation window must therefore catch the fall. It does not prove
-floor contact, and disappearance after two stable visible samples is not ruled out. Adapter identity,
-when available, is provenance only; software WebGPU remains eligible for the same assertions.
+capture. It does not reload or wait for the scene to settle before sampling. Every capture must
+contain blue pixels; missing samples are retained and fail visibility. Descent means the last visible
+centroid is >0.03 below the highest observed centroid. Rest requires ≥1.5 seconds of visible samples
+in the final two seconds, with a centroid range <0.01 over that interval. The observation window must
+therefore catch the fall and its rest. This measures visible rest, not floor contact or physics
+internals. Adapter identity, when available, is provenance only.
 
-Common failure modes this catches: static box that never falls (fails "fell"); no visible blue box
-(fails "on screen"); last two visible samples still moving by ≥0.01 (fails "settled").
+Known-bad fixtures cover a static box (no descent) and a visible floor without a collider (the box
+falls through, disappears, and cannot establish visible rest).

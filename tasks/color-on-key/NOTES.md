@@ -4,12 +4,13 @@ Problem shape from `examples/recipes/respond-to-input` + `game-loop`: an edge-tr
 a state change.
 
 What a correct project does:
-- a white `Part` at the origin; a system reading an edge-triggered spacebar press that sets the
-  entity's `Color` to green (and leaves it green)
+- a white cube; keyboard handling that turns its material green on Space and leaves it green
 
-Gate observation: the centre reads white before any key; after a synthetic `Space` press it reads
-green (g dominant). The change is bound to the input — a scene that is green from the start fails the
-"starts white" assertion.
+Gate observation: Playwright focuses the canvas; the probe captures white before the key and signals
+readiness. Playwright then sends `keyboard.press("Space")` through Chromium's normal input path,
+so listeners on the canvas, document or window can receive it. The probe captures again after key
+completion and 500ms, requiring green (g dominant). A scene green from the start fails "starts white".
+The two known-good fixtures use window and document listeners; the known-bad listens to Enter.
 
 Common failure modes this catches: nothing wired to the key (stays white); color toggles per-frame
 instead of latching (may be caught by the flat 500ms settle); cube green from the start (fails "starts

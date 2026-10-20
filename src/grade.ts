@@ -2,6 +2,7 @@
 // bundled for one run and loaded into the preview page; capture comes only from /rendering.
 
 import {
+    cpSync,
     existsSync,
     mkdtempSync,
     readFileSync,
@@ -9,6 +10,7 @@ import {
     rmSync,
     writeFileSync,
 } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { type EngineIdentity, installedEngineIdentity } from "../scripts/engine";
 import { deriveResultKind } from "./result";
@@ -223,7 +225,11 @@ test("withheld task claims", async ({ page }) => {
         null,
         { timeout: 10_000 },
     );
-    const result = await page.evaluate(async () => {
+    if (${JSON.stringify(task)} === "color-on-key") {
+        await page.locator("canvas").evaluate((canvas) => { canvas.tabIndex = 0; });
+        await page.locator("canvas").focus();
+    }
+    const pendingResult = page.evaluate(async () => {
         const grade = (window as Window & {
             __shallotEvalGrade?: {
                 run: () => Promise<{ ok: boolean; checks: { name: string; ok: boolean; detail: string }[]; capture: string }>;
@@ -232,6 +238,12 @@ test("withheld task claims", async ({ page }) => {
         if (!grade) throw new Error("grade refused: withheld probe did not initialize");
         return grade.run();
     });
+    if (${JSON.stringify(task)} === "color-on-key") {
+        await page.waitForFunction(() => (window as Window & { __shallotEvalKeyboardReady?: boolean }).__shallotEvalKeyboardReady);
+        await page.keyboard.press("Space");
+        await page.evaluate(() => { (window as Window & { __shallotEvalKeyboardDone?: boolean }).__shallotEvalKeyboardDone = true; });
+    }
+    const result = await pendingResult;
     const record = { ...result, ...seat };
     writeFileSync(${JSON.stringify(resultPath)}, JSON.stringify(record));
     expect(result.ok, JSON.stringify(result.checks)).toBe(true);
@@ -286,85 +298,91 @@ if (validationError) {
     );
     process.exitCode = 2;
 } else {
-    const commandResults = [run(["bun", "check"], project), run(["bun", "run", "build"], project)];
-    const typecheckOk = commandResults[0].ok;
-    const buildOk = commandResults[1].ok;
-    let gateOk: boolean | null = null;
-    let browser: BrowserGrade | undefined;
-    let instrumentationError: string | undefined;
-    let failureDiagnostics: unknown;
-    const probePath = join(project, ".shallot-eval-grade-probe.ts");
-    let gradeDir: string | undefined;
+    const copyRoot = realpathSync(mkdtempSync(join(tmpdir(), "shallot-eval-grade-copy-")));
+    const gradingProject = join(copyRoot, "app");
+    try {
+        cpSync(project, gradingProject, { recursive: true, verbatimSymlinks: true });
+        const commandResults = [
+            run(["bun", "check"], gradingProject),
+            run(["bun", "run", "build"], gradingProject),
+        ];
+        const typecheckOk = commandResults[0].ok;
+        const buildOk = commandResults[1].ok;
+        let gateOk: boolean | null = null;
+        let browser: BrowserGrade | undefined;
+        let instrumentationError: string | undefined;
+        let failureDiagnostics: unknown;
+        const probeDir = mkdtempSync(join(gradingProject, ".shallot-eval-probe-"));
+        const probePath = join(probeDir, "grade-probe.ts");
+        let gradeDir: string | undefined;
 
-    if (typecheckOk && buildOk) {
-        gradeDir = mkdtempSync(join(ROOT, ".shallot-eval-grade-"));
-        const bundlePath = join(gradeDir, "probe.js");
-        const specPath = join(gradeDir, "grade.e2e.ts");
-        const configPath = join(gradeDir, "playwright.config.ts");
-        const resultPath = join(gradeDir, "result.json");
-        writeFileSync(
-            probePath,
-            readFileSync(join(ROOT, "src/grade-probe.ts"), "utf8").replace(
-                '"./silhouette"',
-                JSON.stringify(join(ROOT, "src/silhouette.ts")),
-            ),
-        );
-        try {
-            const built = await Bun.build({
-                entrypoints: [probePath],
-                outdir: gradeDir,
-                naming: "probe.js",
-                target: "browser",
-            });
-            if (!built.success) throw new Error(built.logs.map(String).join("\n"));
+        if (typecheckOk && buildOk) {
+            gradeDir = mkdtempSync(join(ROOT, ".shallot-eval-grade-"));
+            const bundlePath = join(gradeDir, "probe.js");
+            const specPath = join(gradeDir, "grade.e2e.ts");
+            const configPath = join(gradeDir, "playwright.config.ts");
+            const resultPath = join(gradeDir, "result.json");
+            for (const file of ["grade-probe.ts", "silhouette.ts", "falling.ts"])
+                cpSync(join(ROOT, "src", file), join(probeDir, file));
+            try {
+                const built = await Bun.build({
+                    entrypoints: [probePath],
+                    outdir: gradeDir,
+                    naming: "probe.js",
+                    target: "browser",
+                });
+                if (!built.success) throw new Error(built.logs.map(String).join("\n"));
 
-            const port = Number(args[portIndex + 1]) || unusedPort();
-            writeFileSync(configPath, playwrightConfig(project, gradeDir, port));
-            writeFileSync(specPath, playwrightSpec(task, bundlePath, resultPath));
-            const browserRun = await runBrowser(
-                ["bun", "x", "playwright", "test", "--config", configPath],
-                ROOT,
-            );
-            if (!existsSync(resultPath)) {
-                instrumentationError = `Playwright did not produce a determined task result${browserRun.output ? `:\n${browserRun.output.slice(-4_000)}` : ""}`;
-            } else {
-                const verdict = JSON.parse(readFileSync(resultPath, "utf8")) as ProbeResult;
-                const checks = verdict.checks ?? [];
-                const failedChecks = checks.filter((check) => !check.ok);
-                browser = {
-                    ok: verdict.ok,
-                    runtime: verdict.runtime,
-                    hardware: verdict.hardware,
-                    reproduction: { capture: verdict.capture },
-                    checks: verdict.ok ? checks : failedChecks,
-                };
-                gateOk = verdict.ok;
-                // The semantic result is the probe's completed assertions. A Playwright process
-                // failure without that result remains instrumentation failure, never a pass.
-                if (!verdict.ok) failureDiagnostics = { checks: failedChecks };
+                const port = Number(args[portIndex + 1]) || unusedPort();
+                writeFileSync(configPath, playwrightConfig(gradingProject, gradeDir, port));
+                writeFileSync(specPath, playwrightSpec(task, bundlePath, resultPath));
+                const browserRun = await runBrowser(
+                    ["bun", "x", "playwright", "test", "--config", configPath],
+                    ROOT,
+                );
+                if (!existsSync(resultPath)) {
+                    instrumentationError = `Playwright did not produce a determined task result${browserRun.output ? `:\n${browserRun.output.slice(-4_000)}` : ""}`;
+                } else {
+                    const verdict = JSON.parse(readFileSync(resultPath, "utf8")) as ProbeResult;
+                    const checks = verdict.checks ?? [];
+                    const failedChecks = checks.filter((check) => !check.ok);
+                    browser = {
+                        ok: verdict.ok,
+                        runtime: verdict.runtime,
+                        hardware: verdict.hardware,
+                        reproduction: { capture: verdict.capture },
+                        checks: verdict.ok ? checks : failedChecks,
+                    };
+                    gateOk = verdict.ok;
+                    // The semantic result is the probe's completed assertions. A Playwright process
+                    // failure without that result remains instrumentation failure, never a pass.
+                    if (!verdict.ok) failureDiagnostics = { checks: failedChecks };
+                }
+            } catch (error) {
+                instrumentationError = error instanceof Error ? error.message : String(error);
+            } finally {
+                rmSync(probeDir, { recursive: true, force: true });
+                if (gradeDir) rmSync(gradeDir, { recursive: true, force: true });
             }
-        } catch (error) {
-            instrumentationError = error instanceof Error ? error.message : String(error);
-        } finally {
-            rmSync(probePath, { force: true });
-            if (gradeDir) rmSync(gradeDir, { recursive: true, force: true });
         }
-    }
 
-    const kind = deriveResultKind(typecheckOk, buildOk, gateOk);
-    const result: Record<string, unknown> = {
-        task,
-        project,
-        result: kind,
-        commands: commandResults,
-        runtime: browser?.runtime,
-        hardware: browser?.hardware,
-        reproduction: browser?.reproduction,
-        checks: browser?.checks ?? [],
-        shallot: engineIdentity,
-        ...(instrumentationError ? { diagnostics: instrumentationError } : {}),
-        ...(failureDiagnostics ? { failureDiagnostics } : {}),
-    };
-    printResult(result, kind, json);
-    if (kind === "INCOMPLETE") process.exitCode = 2;
+        const kind = deriveResultKind(typecheckOk, buildOk, gateOk);
+        const result: Record<string, unknown> = {
+            task,
+            project,
+            result: kind,
+            commands: commandResults,
+            runtime: browser?.runtime,
+            hardware: browser?.hardware,
+            reproduction: browser?.reproduction,
+            checks: browser?.checks ?? [],
+            shallot: engineIdentity,
+            ...(instrumentationError ? { diagnostics: instrumentationError } : {}),
+            ...(failureDiagnostics ? { failureDiagnostics } : {}),
+        };
+        printResult(result, kind, json);
+        if (kind === "INCOMPLETE") process.exitCode = 2;
+    } finally {
+        rmSync(copyRoot, { recursive: true, force: true });
+    }
 }

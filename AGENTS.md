@@ -34,8 +34,10 @@ gate, and removal of the producer registration.
 `bun src/setup.ts <task>` creates an isolated temp app and copies only `PROMPT.md`; withheld claims and
 notes and qualification solutions remain here. The installed engine's own `create` supplies the
 project and its shipped skill body as `AGENTS.md`. Setup records package identity and integrity in
-`.eval.json`. `bun src/grade.ts <task> <project>` runs the project's independent typecheck/build gates, then
-runs Playwright Test against the project's own `vite preview`. The temporary probe imports only the
+`.eval.json`. `bun src/grade.ts <task> <project>` copies the project and its installed dependencies,
+runs its independent typecheck/build gates in that copy, then runs Playwright Test against the copy's
+`vite preview`. Withheld probes never enter the agent's project; the grading copy is removed afterward.
+The temporary probe imports only the
 installed public `@dylanebert/shallot/rendering` `captureFrame` contract. It asserts the existing task
 properties semantically over `final-canvas 1280x720@1 rgba8-tight`, never by a screenshot golden, CPU
 reconstruction of GPU truth, copied capture transport, or archived/private engine driver. A determined

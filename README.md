@@ -38,8 +38,10 @@ content hash, lockfile registry integrity and tar SHA-256 in `.eval.json`.
   worktree. This local pack is not the consumer's staged package state.
 - **Gates assert positive behavior.** Each one drives the canvas, sends synthetic input where needed,
   and checks the task claim. The withheld task files remain outside the generated project.
-- **Public instrumentation owns observation.** Grading runs the project's independent typecheck/build
-  gates, then runs the withheld probe under Playwright Test against that project's own `vite preview`.
+- **Public instrumentation owns observation.** Grading copies the project and installed dependencies,
+  runs its independent typecheck/build gates there, then runs the withheld probe under Playwright Test
+  against the copy's `vite preview`. The agent's project never holds a withheld probe and is not
+  modified by grading. The grading copy is removed afterward.
   The probe imports only `captureFrame`, `Capture`, and `CAPTURE_CONTRACT` from the installed public
   `@dylanebert/shallot/rendering` entrypoint. Eval does not copy the capture transport or a browser
   driver. A task failure is `FAIL`; missing or unusable browser/GPU/public instrumentation is

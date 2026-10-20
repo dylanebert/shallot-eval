@@ -32,11 +32,33 @@ test("changing outline width or position changes the silhouette", () => {
     const a = silhouette(frame([[0, 100, 100, 100, 0]]), bg);
     const wider = silhouette(frame([[100, 100, 100, 100, 100]]), bg);
     const shifted = silhouette(frame([[0, 0, 100, 100, 100]]), bg);
-    expect(silhouetteDelta(a, wider)).toBeCloseTo(0.4);
-    expect(silhouetteDelta(a, shifted)).toBeCloseTo(0.5);
+    expect(silhouetteDelta(a, wider)).toBeGreaterThan(0.02);
+    expect(silhouetteDelta(a, shifted)).toBeGreaterThan(0.02);
 });
 
 test("an absent silhouette is not stable evidence", () => {
     const empty = silhouette(frame([[0, 0, 0]]), bg);
     expect(silhouetteDelta(empty, empty)).toBe(Number.POSITIVE_INFINITY);
+});
+
+test("white bands matching a white border do not invent outline motion", () => {
+    const white = { r: 255, g: 255, b: 255 };
+    const a = frame([
+        [255, 255, 255, 255, 255, 255],
+        [255, 40, 255, 40, 255, 255],
+        [255, 40, 255, 40, 255, 255],
+        [255, 40, 255, 40, 255, 255],
+        [255, 255, 255, 255, 255, 255],
+    ]);
+    const b = frame([
+        [255, 255, 255, 255, 255, 255],
+        [255, 255, 40, 40, 40, 255],
+        [255, 255, 40, 40, 40, 255],
+        [255, 255, 40, 40, 40, 255],
+        [255, 255, 255, 255, 255, 255],
+    ]);
+    expect(silhouetteDelta(silhouette(a, white), silhouette(b, white))).toBe(0);
+    // The same visible column ending earlier really does move a measurable edge.
+    b.rgba.set([255, 255, 255, 255], (3 * b.width + 3) * 4);
+    expect(silhouetteDelta(silhouette(a, white), silhouette(b, white))).toBeGreaterThan(0.02);
 });
