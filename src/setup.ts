@@ -1,135 +1,51 @@
-// Set up one task's project: pack the installed Shallot package as a local artifact preflight,
-// scaffold a fresh project with the landed create-shallot template, install that artifact, and
-// drop the task's PROMPT.md in. The project lands in an out-of-tree temp dir so the agent sees only
-// the selected public package/context, not the source worktrees. The withheld gate and notes stay in
-// this repository and are never copied into the project. Prints the project dir last.
-//
-// `--bare` sets up the without-context arm of the shipped-context delta: the shipped `examples/` corpus
-// and AGENTS.md are removed from the tarball and the scaffold's agent docs lose the section pointing at
-// them. The agent keeps the code, its JSDoc and the product workflow (build/run).
-//
-// Run: `bun src/setup.ts <task> [--json] [--bare]`
-
-import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+// Create an isolated task app using the installed engine's public CLI. Only PROMPT.md is copied.
+import { mkdtempSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { engineArtifact, root } from "../scripts/engine";
-import { scaffoldArtifact } from "../scripts/scaffold";
+import { engineArtifact, enginePackage, root } from "../scripts/engine";
 
-function run(cmd: string[], cwd: string): { ok: boolean; out: string } {
+function run(cmd: string[], cwd: string): void {
     const p = Bun.spawnSync(cmd, { cwd, stdout: "pipe", stderr: "pipe" });
-    return { ok: p.exitCode === 0, out: `${p.stdout.toString()}\n${p.stderr.toString()}` };
+    if (p.exitCode !== 0) throw new Error(`${cmd.join(" ")} failed:\n${p.stdout}\n${p.stderr}`);
 }
 
-// Strip the shipped context out of the packed tarball itself (pack lays every file under `package/`).
-// Deleting it only from `node_modules` doesn't hold: `bun add` re-resolves the `file:` dep and
-// re-extracts the tarball. Untar, delete, re-tar in place at the same path.
-export function stripTarball(tgz: string): void {
-    const ex = mkdtempSync(join(tmpdir(), "shallot-eval-untar-"));
-    const out = run(["tar", "-xzf", tgz, "-C", ex], ex);
-    if (!out.ok) throw new Error(`untar ${tgz} failed:\n${out.out}`);
-    rmSync(join(ex, "package/examples"), { recursive: true, force: true });
-    // AGENTS.md is an agent doc, not code/JSDoc/product workflow; keeping it weakens the bare claim.
-    rmSync(join(ex, "package/AGENTS.md"), { force: true });
-    const re = run(["tar", "-czf", tgz, "-C", ex, "package"], ex);
-    if (!re.ok) throw new Error(`re-tar ${tgz} failed:\n${re.out}`);
-    rmSync(ex, { recursive: true, force: true });
-}
-
-// Strip the "## Engine reference" section from the scaffold's agent docs. Its only content is the
-// pointers at the shipped AGENTS.md and `examples/`, the context the bare arm withholds. The end
-// anchors on the next section or end-of-string so a last-section "Engine reference" still strips.
-function stripShippedContext(md: string): string {
-    return md.replace(/\n## Engine reference\n[\s\S]*?(?=\n## |$)/, "");
+export function skillBody(skill: string): string {
+    return skill.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n\r?\n/, "");
 }
 
 function main(): void {
     const args = process.argv.slice(2);
-    const asJson = args.includes("--json");
-    const bare = args.includes("--bare");
     const task = args.find((a) => !a.startsWith("--"));
-    if (!task) {
-        console.error("Usage: bun src/setup.ts <task> [--json] [--bare]");
-        process.exit(1);
-    }
-
-    const promptPath = resolve(root, "tasks", task, "PROMPT.md");
-    try {
-        readFileSync(promptPath);
-    } catch {
-        console.error(`no such task: ${task} (missing ${promptPath})`);
-        process.exit(1);
-    }
-
-    // realpath: macOS tmpdir is a symlink; vite's fs.allow prefix check needs the resolved form
+    if (!task || args.some((a) => a.startsWith("--") && a !== "--json"))
+        throw new Error("Usage: bun src/setup.ts <task> [--json]");
+    const prompt = readFileSync(resolve(root, "tasks", task, "PROMPT.md"));
     const work = realpathSync(mkdtempSync(join(tmpdir(), `shallot-eval-${task}-`)));
-    const proj = join(work, "app");
-
+    const project = join(work, "app");
     const artifact = engineArtifact(join(work, "engine-pack"));
-    const engineTgz = artifact.path;
-    if (bare) stripTarball(engineTgz);
-
-    const scaffoldPack = scaffoldArtifact(join(work, "scaffold-pack"));
-    const scaffold = run(
-        ["bun", "x", "--package", scaffoldPack.path, "create-shallot", "app"],
-        work,
-    );
-    if (!scaffold.ok) throw new Error(`create-shallot failed:\n${scaffold.out}`);
-
-    // A real user installs the published engine; this temporary local pack is artifact preflight only.
-    const pkg = JSON.parse(readFileSync(join(proj, "package.json"), "utf8"));
-    pkg.dependencies["@dylanebert/shallot"] = `file:${engineTgz}`;
-    writeFileSync(join(proj, "package.json"), `${JSON.stringify(pkg, null, 2)}\n`);
-
-    const install = run(["bun", "install"], proj);
-    if (!install.ok) throw new Error(`bun install failed:\n${install.out.slice(-800)}`);
-
-    if (bare) {
-        // CLAUDE.md only imports AGENTS.md, so stripping the one covers both
-        const doc = join(proj, "AGENTS.md");
-        writeFileSync(doc, stripShippedContext(readFileSync(doc, "utf8")));
-    }
-
-    writeFileSync(join(proj, "PROMPT.md"), readFileSync(promptPath));
-    writeFileSync(
-        join(proj, ".eval.json"),
-        `${JSON.stringify(
-            {
-                task,
-                bare,
-                engine: artifact.identity,
-                artifact: {
-                    kind: "local-pack-preflight",
-                    identity: artifact.identity,
-                    sha256: artifact.sha256,
-                },
-                scaffold: {
-                    kind: "create-shallot-pack-preflight",
-                    sourceCommit: scaffoldPack.sourceCommit,
-                    sha256: scaffoldPack.sha256,
-                },
-                created: new Date().toISOString(),
-            },
-            null,
-            2,
-        )}\n`,
-    );
-
-    if (asJson) {
-        console.log(
-            JSON.stringify({
-                task,
-                engine: artifact.identity,
-                artifactSha256: artifact.sha256,
-                project: proj,
-                work,
-            }),
-        );
-    } else {
-        console.error(`task ${task}: project ready. Agent works with cwd = the path below.`);
-        console.log(proj);
-    }
+    run(["bun", join(enginePackage, "bin/shallot.ts"), "create", "app"], work);
+    const pkg = JSON.parse(readFileSync(join(project, "package.json"), "utf8"));
+    pkg.dependencies["@dylanebert/shallot"] = `file:${artifact.path}`;
+    writeFileSync(join(project, "package.json"), `${JSON.stringify(pkg, null, 2)}\n`);
+    run(["bun", "install"], project);
+    const body = skillBody(readFileSync(join(enginePackage, "src/cli/skill.md"), "utf8"));
+    if (readFileSync(join(project, "AGENTS.md"), "utf8") !== body)
+        throw new Error("generated AGENTS.md differs from the installed skill body");
+    writeFileSync(join(project, "PROMPT.md"), prompt);
+    const record = {
+        task,
+        engine: artifact.identity,
+        registryIntegrity: artifact.registryIntegrity,
+        artifact: {
+            kind: "local-pack-preflight",
+            identity: artifact.identity,
+            sha256: artifact.sha256,
+        },
+        scaffold: { kind: "installed-engine-create", version: artifact.identity.version },
+        created: new Date().toISOString(),
+    };
+    writeFileSync(join(project, ".eval.json"), `${JSON.stringify(record, null, 2)}\n`);
+    if (args.includes("--json")) console.log(JSON.stringify({ ...record, project, work }));
+    else console.log(project);
 }
 
-// Run only when executed directly; the test imports stripTarball.
 if (import.meta.path === Bun.main) main();

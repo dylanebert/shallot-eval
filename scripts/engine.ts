@@ -63,8 +63,20 @@ export function engineArtifact(dest: string): {
     path: string;
     identity: EngineIdentity;
     sha256: string;
+    registryIntegrity: string;
 } {
     const identity = installedEngineIdentity();
+    const lock = JSON.parse(
+        readFileSync(join(root, "bun.lock"), "utf8").replace(/,\s*([}\]])/g, "$1"),
+    );
+    const entry = lock.packages["@dylanebert/shallot"];
+    if (
+        entry?.[0] !== `@dylanebert/shallot@${identity.version}` ||
+        typeof entry?.[3] !== "string" ||
+        !entry[3].startsWith("sha512-")
+    )
+        throw new Error("installed engine has no matching registry integrity in bun.lock");
+    const registryIntegrity = entry[3];
     mkdirSync(dest, { recursive: true });
     const staging = mkdtempSync(join(dest, ".shallot-pack-"));
     const packageCopy = join(staging, "package");
@@ -83,7 +95,7 @@ export function engineArtifact(dest: string): {
                 `packing installed Shallot failed:\n${pack.stdout.toString()}${pack.stderr.toString()}`,
             );
         }
-        return { path, identity, sha256: sha256(path) };
+        return { path, identity, sha256: sha256(path), registryIntegrity };
     } finally {
         rmSync(staging, { recursive: true, force: true });
     }

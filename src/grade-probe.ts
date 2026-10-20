@@ -46,7 +46,15 @@ async function waitForCanvas(): Promise<void> {
 }
 
 async function shot(target = canvas()): Promise<Capture> {
-    return captureFrame(target);
+    const frame = await captureFrame(target);
+    if (
+        frame.identity.surface !== "final-canvas" ||
+        frame.identity.encoding !== "rgba8-tight" ||
+        frame.width !== CAPTURE_CONTRACT.width ||
+        frame.height !== CAPTURE_CONTRACT.height
+    )
+        throw new Error("grade refused: capture identity does not match the task contract");
+    return frame;
 }
 
 function region(frame: Capture, x0: number, y0: number, x1: number, y1: number): Rgb {
@@ -334,7 +342,7 @@ async function run(): Promise<{ ok: boolean; checks: Assertion[]; capture: strin
     return {
         ok: assertions.every((entry) => entry.ok),
         checks: assertions,
-        capture: `${CAPTURE_CONTRACT.surface} ${CAPTURE_CONTRACT.width}x${CAPTURE_CONTRACT.height}@${CAPTURE_CONTRACT.deviceScale} ${CAPTURE_CONTRACT.encoding}`,
+        capture: `final-canvas ${CAPTURE_CONTRACT.width}x${CAPTURE_CONTRACT.height}@${CAPTURE_CONTRACT.deviceScale} rgba8-tight`,
     };
 }
 

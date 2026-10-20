@@ -1,10 +1,10 @@
 # shallot-eval
 
 Can a stock coding agent compose Shallot from the shipped package and complete a small user-shaped
-task? Each task has a with-context arm and a without-context arm. Setup builds an isolated project,
+task? Setup builds an isolated project with the installed engine's own `create`,
 an agent works in it, and a withheld gate grades it through the installed package's public observation
-and capture exports. This repository owns task prompts, arms, withheld expectations, invocation
-records, and outcomes. Shallot owns engine correctness and the mechanism that establishes it.
+and capture exports. This repository owns task prompts, withheld expectations, invocation records,
+and outcomes. Shallot owns engine correctness and the mechanism that establishes it.
 
 The consumer pins the published prerelease, and setup records the version and content hash of the
 installed Shallot package used for its artifact preflight. A single run does not produce a score,
@@ -22,19 +22,19 @@ bun run lint
 bun run test
 ```
 
-The Shallot package is pinned as a dev-only dependency to `^0.10.0-next.1` in `package.json` and
+The Shallot package is pinned as a dev-only dependency to `0.10.1-next.5` in `package.json` and
 `bun.lock`. Task setup packs the installed package for an out-of-tree generated app; this artifact
 preflight is not the consumer's staged package state. The task app receives the package version,
-content hash and tar SHA-256 in `.eval.json`.
+content hash, lockfile registry integrity and tar SHA-256 in `.eval.json`.
 
 ## The Contract
 
-- **The agent never sees the gate.** `tasks/<task>/gate.ts` and `NOTES.md` stay here. Setup copies
-  only `PROMPT.md` into the isolated project.
+- **The agent never sees the gate.** `tasks/<task>/gate.ts`, qualification solutions and `NOTES.md`
+  stay here. Setup copies only `PROMPT.md` into the isolated project.
 - **Isolation is an artifact preflight in a temp dir.** Setup packs the installed package into a
-  temporary tarball, records its version, content hash and tar SHA-256, and installs it into a fresh
-  `create-shallot` project under the OS temp dir. The agent sees only the installed
-  `node_modules/@dylanebert/shallot` package and the context selected by its arm, not either source
+  temporary tarball, records its version, content hash, lockfile registry integrity and tar SHA-256,
+  and installs it into a fresh engine-created project under the OS temp dir. The agent sees only the installed
+  `node_modules/@dylanebert/shallot` package and its shipped guidance, not either source
   worktree. This local pack is not the consumer's staged package state.
 - **Gates assert positive behavior.** Each one drives the canvas, sends synthetic input where needed,
   and checks the task claim. The withheld task files remain outside the generated project.
@@ -67,10 +67,12 @@ bun src/setup.ts red-box       # prints the project dir on the last line
 bun src/grade.ts red-box <projectDir>
 ```
 
-`--bare` sets up the without-context arm: the tarball loses `examples/` and `AGENTS.md`, and the
-scaffold's agent docs lose their pointer to them. Run a task with and without it to observe the two
-arms. `bun src/setup.ts <task> --json` prints the task, installed package identity, and artifact integrity;
-`bun src/grade.ts <task> <projectDir> --json` includes browser runtime and capture identity when available.
+`bun src/setup.ts <task> --json` prints the task, installed package identity, registry integrity and
+artifact integrity. The generated `AGENTS.md` equals the published skill body (without frontmatter).
+`bun src/grade.ts <task> <projectDir> --json` includes runtime and capture identity when available.
+
+The next.5 evaluator qualification and fixture installation steps are recorded in
+[`records/next.5-qualification/`](records/next.5-qualification/README.md).
 
 The browser and fixed `final-canvas 1280x720@1 rgba8-tight` identity travel with the verdict.
 Missing GPU/Chromium premises refuse rather than pass. An agent stall is a product discoverability

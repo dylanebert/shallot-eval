@@ -1,0 +1,12 @@
+{
+  "registryIntegrity": "sha512-tAvTzE37qhm0IFJwO6/KKWQDbuz7ywDO7uQW79D2FCd20HOjjrWFuthXGGICZT/smZZxWJoeJ9AdEI/3Xponvg==",
+  "registry": {
+    "version": "0.10.1-next.5",
+    "contentHash": "cdd8fd40d15a7ddef47c1a9fa3c88b2c4084c89f647539eb020aafca9410ea15"
+  },
+  "installed": {
+    "version": "0.10.1-next.5",
+    "contentHash": "cdd8fd40d15a7ddef47c1a9fa3c88b2c4084c89f647539eb020aafca9410ea15"
+  },
+  "tarball": "https://registry.npmjs.org/@dylanebert/shallot/-/shallot-0.10.1-next.5.tgz"
+}

@@ -1,0 +1,30 @@
+{
+  "task": "color-on-key",
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-5lBtLV/app",
+  "result": "INCOMPLETE",
+  "commands": [
+    {
+      "command": [
+        "bun",
+        "check"
+      ],
+      "ok": true,
+      "output": "\u2713 No type errors in 237 files [124.93ms]"
+    },
+    {
+      "command": [
+        "bun",
+        "run",
+        "build"
+      ],
+      "ok": true,
+      "output": "vite v8.3.4 building client environment for production...\ntransforming...\n\u2713 429 modules transformed.\nrendering chunks...\n[plugin shallot] pruned 2 orphaned asset(s), 215KB\ncomputing gzip size...\ndist/index.html                    0.25 kB \u2502 gzip:   0.20 kB\ndist/assets/index-D8oTI3Zc.js  1,718.24 kB \u2502 gzip: 682.73 kB\n\n\u2713 built in 1.02s\n\n$ vite build\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit."
+    }
+  ],
+  "checks": [],
+  "shallot": {
+    "version": "0.10.1-next.5",
+    "contentHash": "cdd8fd40d15a7ddef47c1a9fa3c88b2c4084c89f647539eb020aafca9410ea15"
+  },
+  "diagnostics": "Playwright did not produce a determined task result:\nRunning 1 test using 1 worker\n\n  \u2718  1 .shallot-eval-grade-SFUxiB/grade.e2e.ts:4:1 \u203a withheld task claims (1ms)\n\n\n  1) .shallot-eval-grade-SFUxiB/grade.e2e.ts:4:1 \u203a withheld task claims \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n    Error: browserType.launch: Executable doesn't exist at /var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/tmp.WBoMEksnuN/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing\n    \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n    \u2551 Looks like Playwright was just installed or updated.       \u2551\n    \u2551 Please run the following command to download new browsers: \u2551\n    \u2551                                                            \u2551\n    \u2551     npx playwright install                                 \u2551\n    \u2551                                                            \u2551\n    \u2551 <3 Playwright Team                                         \u2551\n    \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n\n    Error Context: .shallot-eval-grade-SFUxiB/test-results/grade.e2e.ts-withheld-task-claims/error-context.md\n\n  1 failed\n    .shallot-eval-grade-SFUxiB/grade.e2e.ts:4:1 \u203a withheld task claims \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+}

@@ -1,0 +1,28 @@
+{
+  "task": "falling-box",
+  "engine": {
+    "version": "0.10.1-next.5",
+    "contentHash": "cdd8fd40d15a7ddef47c1a9fa3c88b2c4084c89f647539eb020aafca9410ea15"
+  },
+  "registryIntegrity": "sha512-tAvTzE37qhm0IFJwO6/KKWQDbuz7ywDO7uQW79D2FCd20HOjjrWFuthXGGICZT/smZZxWJoeJ9AdEI/3Xponvg==",
+  "artifact": {
+    "kind": "local-pack-preflight",
+    "identity": {
+      "version": "0.10.1-next.5",
+      "contentHash": "cdd8fd40d15a7ddef47c1a9fa3c88b2c4084c89f647539eb020aafca9410ea15"
+    },
+    "sha256": "51df2583960bb150c3bf1936a218d045b91144e0a36ab4133c34fa8a4701bbca"
+  },
+  "scaffold": {
+    "kind": "installed-engine-create",
+    "version": "0.10.1-next.5"
+  },
+  "created": "2026-10-20T22:04:41.798Z",
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-ufXlst/app",
+  "work": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-ufXlst",
+  "guidanceVerification": {
+    "equalsPublishedSkillBody": true,
+    "sha256": "6823960b3a59d8e8be1a5e830e702abe45e7a9195357f1c7755476779ec6fa4e",
+    "withheldFilesAbsent": true
+  }
+}

@@ -3,7 +3,7 @@
 This evaluation admits Bun `1.4.3` from `.bun-version`/`packageManager`. Run `bun check`,
 `bun run lint` and `bun run test`; these surface gates stay independent from task setup and grading.
 
-Eval owns the prompts, context arms, withheld task expectations, invocation records, and agent
+Eval owns the prompts, withheld task expectations, invocation records, and agent
 outcomes. Shallot owns the scheduler and observation mechanism, the capture contract, and tests of those
 mechanisms; Eval owns its Playwright grading run. Eval may consume those public exports. It does not
 copy them, import Shallot source, archive engine paths, use a workspace link as evidence, turn task
@@ -11,7 +11,7 @@ gates into a second engine-correctness population, or infer model capability fro
 
 ## Package States
 
-- The consumer pin is `@dylanebert/shallot@^0.10.0-next.1` in `package.json` and `bun.lock`.
+- The consumer pin is `@dylanebert/shallot@0.10.1-next.5` in `package.json` and `bun.lock`.
   Staging uses `bun pm pack` from Shallot main followed by `bun add --no-save <tarball> --dev`;
   `bun install` restores the registry pin without changing either file.
 - Local co-development is an uncommitted `bun link` producer registration plus
@@ -21,8 +21,8 @@ gates into a second engine-correctness population, or infer model capability fro
   realpath and the candidate identity, rerun the focused gate, and unlink the producer when finished.
 - The local pack made by `bun src/setup.ts` is **artifact preflight**, not source staging. It is copied
   from the package installed under this repository, and `.eval.json` records its package version,
-  content hash and tar SHA-256. Setup installs it only in the out-of-tree task app; its temporary
-  package override never changes this repository's manifest or lockfile.
+  content hash, lockfile registry integrity and tar SHA-256. Setup installs it only in the out-of-tree
+  task app; its temporary package override never changes this repository's manifest or lockfile.
 
 Do not save a local link or file source, Git ref, mutable tag, global checkout or private engine path.
 Eval does not use a workspace link as evidence. A clean exit from local co-development is a forced
@@ -32,8 +32,8 @@ gate, and removal of the producer registration.
 ## Task And Frame Gates
 
 `bun src/setup.ts <task>` creates an isolated temp app and copies only `PROMPT.md`; withheld claims and
-notes remain in this repository. The selected arm provides the installed packed package and its
-shipped public context. Setup records the installed package identity and artifact integrity in
+notes and qualification solutions remain here. The installed engine's own `create` supplies the
+project and its shipped skill body as `AGENTS.md`. Setup records package identity and integrity in
 `.eval.json`. `bun src/grade.ts <task> <project>` runs the project's independent typecheck/build gates, then
 runs Playwright Test against the project's own `vite preview`. The temporary probe imports only the
 installed public `@dylanebert/shallot/rendering` `captureFrame` contract. It asserts the existing task
