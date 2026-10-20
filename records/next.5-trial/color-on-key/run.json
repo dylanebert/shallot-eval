@@ -1,0 +1,42 @@
+{
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-KeBXkS/app",
+  "contextAbsent": [
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-KeBXkS/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-KeBXkS/CLAUDE.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/CLAUDE.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/CLAUDE.md",
+    "/private/var/folders/24/AGENTS.md",
+    "/private/var/folders/24/CLAUDE.md",
+    "/private/var/folders/AGENTS.md",
+    "/private/var/folders/CLAUDE.md",
+    "/private/var/AGENTS.md",
+    "/private/var/CLAUDE.md",
+    "/private/AGENTS.md",
+    "/private/CLAUDE.md",
+    "/AGENTS.md",
+    "/CLAUDE.md",
+    "/Users/dylan.ebert/.pi/agent/AGENTS.md",
+    "/Users/dylan.ebert/.pi/agent/CLAUDE.md"
+  ],
+  "projectAgentsSha256": "6823960b3a59d8e8be1a5e830e702abe45e7a9195357f1c7755476779ec6fa4e",
+  "argv": [
+    "pi",
+    "-p",
+    "--no-extensions",
+    "--no-skills",
+    "--no-mcp",
+    "--no-prompt-templates",
+    "--session-dir",
+    "/Users/dylan.ebert/.worktrees/kex/shallot-eval/stranger-trial/records/next.5-trial/color-on-key",
+    "# Change color on spacebar\n\nShow a cube that starts out white. When I press the spacebar, it should turn green and stay green.\nBefore I press anything it should be white, and the change should happen the moment I hit space.\n\nKeep it simple \u2014 one cube, keyboard only.\n"
+  ],
+  "started": "2026-10-20T23:20:34.491468+00:00",
+  "limitSeconds": 1800,
+  "piVersion": "1.3.0",
+  "wallSeconds": 121.68414370890241,
+  "exitCode": 0,
+  "timedOut": false,
+  "ended": "2026-10-20T23:22:37.027899+00:00"
+}

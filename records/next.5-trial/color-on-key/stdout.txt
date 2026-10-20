@@ -1,0 +1,12 @@
+The cube is done. It starts white and turns green the moment you press space, then stays green. I checked this with a headless test and in a real browser.
+
+**What's in it**
+- **`src/cube/index.ts`**: one white cube with a fixed camera and two lights. There's no ground, no orbit camera and no mouse controls.
+- **Press space**: the cube turns green on the same frame you press it, and it stays green after you let go. Other keys don't change it, and nothing turns it back to white.
+- **`index.html`**: now loads the cube instead of the old spinning welcome scene. I deleted the welcome scene (`src/welcome`).
+
+**Testing**
+- **`src/cube/cube.test.ts`** (`bun test`): the cube stays white for 10 frames and after another key is pressed. It's green on the frame space goes down and still green 10 frames after space is released. It passes.
+- **`tests/space.e2e.ts`** (`bunx playwright test`): in the built app, it reads the pixel at the centre of the canvas. That pixel is white before any key, and after pressing space it's green and still green half a second later. This test and the four startup tests all pass. A screenshot taken after pressing space shows a green cube.
+
+To try it, run `bun run dev` and press space.

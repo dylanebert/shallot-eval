@@ -1,0 +1,19 @@
+The demo is built: when the page loads, a solid blue box falls from 5 m up, lands on a plain gray floor, tips onto a face and comes to rest. You don't need to click anything, and you can still drag the camera to look around.
+
+**What I checked:**
+- **Physics test:** stepping the simulation for 6 seconds, the box falls under gravity and never sinks into the floor. It settles flat on the surface and stops moving completely by the last second. The physics engine also reports it at rest.
+- **In the browser:** I took screenshots of the built page with no console errors. At 0.7 s the box is mid-air with its shadow on the floor. At 4.7 s it is resting on the floor.
+- **Existing checks:** the project's startup browser tests pass, and so does a new small test of the scene setup.
+
+**Choices you might want to change:**
+- The box starts slightly tilted so it tips onto a face when it lands; without the tilt it would land flat. You can change the angle near the box in `src/drop/index.ts`.
+- To keep the floor looking truly gray, I changed both lights to plain white. With the original warm lighting it looked beige.
+- I removed the original turning-cube welcome scene. Since its test was the project's only one, I added the scene-setup test so `bun test` (which CI runs) still has something to run.
+
+**Files:**
+- `src/drop/index.ts`: the demo scene (box, floor, lights, camera).
+- `src/drop/drop.test.ts`: checks there's one moving box above one fixed floor (run by `bun test`).
+- `tests/drop.node.ts`: the full fall-and-settle check (run with `bun test ./tests/drop.node.ts`).
+- `index.html`: now starts the demo and has an updated page description.
+
+Run it with `bun run dev`.

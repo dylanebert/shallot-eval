@@ -1,0 +1,12 @@
+The cube now has dark and amber diagonal stripes on every face, and they keep sliding across the surface on their own. The camera stays where it was.
+
+I checked it in rendered frames as well as in tests. In two frames taken 40 updates apart the stripes are clearly in different places. The unit tests, the new frame test, the type check and the build all pass. That frame test was run with 5 stripes per face, before I widened them to 3; I reran the tests and build after that change but didn't look at a new frame.
+
+**What I changed:**
+- **`src/welcome/stripes.ts`** (new): a custom shader that draws the stripes and slides them along with a clock. A small update step advances the clock every frame.
+- **`src/welcome/index.ts`**: the cube uses the striped material. I also **removed the cube's spin**, so the stripes are the only thing moving. If you want the spin back as well, that's an easy change.
+- **`src/welcome/welcome.test.ts`**: the old test checked that the cube turns, so I replaced it with one that checks the cube uses the stripes and that their clock moves forward.
+- **`tests/stripes.node.ts`** (new): renders the scene on the GPU and checks that stripe edges show on the cube and that its pixels change over time. Run it with `bun test ./tests/stripes.node.ts`.
+- I added `webgpu` as a dev dependency, because the GPU test needs it to run.
+
+You can change the look in `stripes.ts`: `STRIPE_COUNT` (currently 3) sets how dense the stripes are, `STRIPE_SPEED` (0.6 stripes per second) sets how fast they move, and `colorA` and `colorB` set the two colours.

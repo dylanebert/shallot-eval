@@ -1,0 +1,42 @@
+{
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-zRrLYp/app",
+  "contextAbsent": [
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-zRrLYp/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-zRrLYp/CLAUDE.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/CLAUDE.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/CLAUDE.md",
+    "/private/var/folders/24/AGENTS.md",
+    "/private/var/folders/24/CLAUDE.md",
+    "/private/var/folders/AGENTS.md",
+    "/private/var/folders/CLAUDE.md",
+    "/private/var/AGENTS.md",
+    "/private/var/CLAUDE.md",
+    "/private/AGENTS.md",
+    "/private/CLAUDE.md",
+    "/AGENTS.md",
+    "/CLAUDE.md",
+    "/Users/dylan.ebert/.pi/agent/AGENTS.md",
+    "/Users/dylan.ebert/.pi/agent/CLAUDE.md"
+  ],
+  "projectAgentsSha256": "6823960b3a59d8e8be1a5e830e702abe45e7a9195357f1c7755476779ec6fa4e",
+  "argv": [
+    "pi",
+    "-p",
+    "--no-extensions",
+    "--no-skills",
+    "--no-mcp",
+    "--no-prompt-templates",
+    "--session-dir",
+    "/Users/dylan.ebert/.worktrees/kex/shallot-eval/stranger-trial/records/next.5-trial/striped-material",
+    "# A cube with a moving pattern on it\n\nI want a cube whose surface has a pattern running across it \u2014 think stripes or bands \u2014 and I'd like\nthat pattern to keep moving on its own, so the cube always looks alive. A single flat colour won't do:\nI want to actually see lines or bands on the surface, and I want them to shift over time.\n\nThe camera can stay where it is. It's the pattern on the cube that should be moving.\n"
+  ],
+  "started": "2026-10-20T23:23:00.885386+00:00",
+  "limitSeconds": 1800,
+  "piVersion": "1.3.0",
+  "wallSeconds": 151.07495475001633,
+  "exitCode": 0,
+  "timedOut": false,
+  "ended": "2026-10-20T23:25:32.225604+00:00"
+}
