@@ -1,0 +1,38 @@
+$ bun test --timeout=250
+bun test v1.4.3 (c6da4a4d3)
+
+src/grade.test.ts:
+(pass) staging failure with successful build derives INCOMPLETE [0.10ms]
+(pass) an unmeasurable outline with passing bands and motion derives INCOMPLETE [0.17ms]
+(pass) determined observations remain PASS or FAIL, including beside an unknown [0.06ms]
+(pass) determined typecheck or build failure derives FAIL [0.02ms]
+
+src/falling.test.ts:
+(pass) a visible descent followed by two seconds of rest qualifies [0.72ms]
+(pass) disappearance is not discarded or mistaken for rest [0.21ms]
+(pass) small per-frame motion is not rest across the final interval [0.21ms]
+(pass) two adjacent tail samples do not establish a meaningful rest interval [0.07ms]
+
+src/contract.test.ts:
+(pass) Eval installs the candidate package and public frame seam [0.29ms]
+
+src/foreground.test.ts:
+(pass) cube colour excludes background even when smaller than the old central region [1.98ms]
+(pass) foreground is measured by contrast in either direction, not target hue [1.43ms]
+(pass) absent or background-indistinguishable cube is undetermined, not a colour [0.78ms]
+
+src/setup.test.ts:
+(pass) project guidance is the published skill without frontmatter [0.05ms]
+(pass) removed setup options are rejected [17.07ms]
+
+src/silhouette.test.ts:
+(pass) internal bands can move without changing the silhouette [0.17ms]
+(pass) changing outline width or position changes the silhouette [0.04ms]
+(pass) an absent silhouette is undetermined, not stable or moving evidence [0.01ms]
+(pass) diagonal background-coloured bands leave the outline undetermined [0.22ms]
+(pass) white bands matching a white border do not invent outline motion [0.07ms]
+
+ 19 pass
+ 0 fail
+ 38 expect() calls
+Ran 19 tests across 6 files. [81.00ms]

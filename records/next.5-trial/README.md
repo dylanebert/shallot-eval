@@ -2,14 +2,14 @@
 
 One stock-agent invocation per task, in the order below, on 2026-10-20. These are readings of
 three individual trajectories, not a reliability estimate or an engine-correctness population.
-No retry, intervention, or task-project edit by the trial operator. The verdicts are the qualified
-evaluator's results, including the color task's disagreement with the agent's own browser check.
-No pre-land check was run.
+No retry, intervention, or task-project edit by the trial operator. The color task was re-graded
+without another agent invocation after correcting an evaluator size assumption; its original FAIL
+is retained but superseded by PASS. No pre-land check was run.
 
 | Task | Verdict | Agent wall time | Model (default, not overridden) |
 |---|---|---|---|
 | falling-box | PASS | 202.892s (3m23s) | anthropic/claude-opus-5-5, medium thinking |
-| color-on-key | FAIL | 121.684s (2m02s) | anthropic/claude-opus-5-5, medium thinking |
+| color-on-key | PASS (corrected gate; original FAIL superseded) | 121.684s (2m02s) | anthropic/claude-opus-5-5, medium thinking |
 | striped-material | PASS | 151.075s (2m31s) | anthropic/claude-opus-5-5, medium thinking |
 
 ## Evidence and setup
@@ -74,10 +74,10 @@ After each exit, before setting up the next task, the supervisor ran
   The operator did not inspect or change other servers during the agent run. The session does
   not establish which server produced the disputed screenshot; don't treat the agent's diagnosis
   as independent proof. The final independent grade used its own ephemeral server.
-- C's browser check samples **one centre pixel**; the withheld grade averages the central
-  20% × 20% region at 1280×720. These are different promises of visibility. The grade's low
-  averages do not establish that the keyboard API failed. No post-trial project modification or
-  diagnostic rerun was made to resolve that disagreement.
+- C's browser check samples **one centre pixel**; the original grade averaged the central
+  20% × 20% region at 1280×720. That grade mixed a smaller cube with background and imposed a
+  size the prompt never asked for. The corrected grade measures foreground contrast against the
+  frame border instead. Re-grading the unchanged project passes; no agent was run again.
 
 ## falling-box — PASS
 
@@ -128,11 +128,19 @@ centroid spread 0.0000 ([grade](falling-box/grade.json)).
    substitutes browser evidence; the independent grading typecheck later passes. No CLI failure
    was observed: `create --help` successfully led to the physics example (L7).
 
-## color-on-key — FAIL
+## color-on-key — PASS after evaluator correction
 
-The grade's initial central-region RGB is **110,110,112**, after Space **46,102,52**.
-Both the white and green brightness assertions fail ([grade](color-on-key/grade.json)).
-The green-dominant change is present; this result must not be rewritten as “Space did nothing”.
+The original grade's central-region RGB was **110,110,112**, after Space **46,102,52**.
+Its FAIL is preserved byte-for-byte in [grade.json](color-on-key/grade.json), **superseded** by
+[grade-corrected.json](color-on-key/grade-corrected.json). The corrected grade measures **21,702
+foreground pixels**: **175,176,181 → 62,161,73**, passing both white and green assertions.
+The failure belonged to the evaluator's unrequested minimum-size assumption, not the agent.
+[Regrade boundary](color-on-key/regrade-boundary.json) records equal whole-project hashes before
+and after, including installed dependencies (symlinks hashed as link text). This is a re-grade,
+not a trial retry. The session, prompt, implementation and original agent wall time are unchanged.
+
+The correction is qualified on all earlier color fixtures plus a smaller known-good and an absent
+cube: [qualification addendum](../next.5-qualification/color-observation-correction/README.md).
 
 ### Reading and checks
 
@@ -153,15 +161,13 @@ The green-dominant change is present; this result must not be rewritten as “Sp
 
 ### Findings / wrong turns
 
-1. **Owning surface: example (checks and framing), not an established input defect.** C L31's
+1. **Owning surface: evaluator gate, not a Shallot skill/JSDoc/CLI/example finding.** C L31's
    browser witness reads `getImageData(c.width >> 1, c.height >> 1, 1, 1)` and asserts the pixel
-   is bright before Space and green afterward. C L35 claims “That pixel is white ... after
-   pressing space it's green”. This is narrower than the evaluator's central region, which
-   grades FAIL despite typecheck/build and the agent's e2e passing. Its plugin sets baseColor
-   WHITE and updates to GREEN (L29); a material-row check alone does not establish the task's
-   rendered visibility. The example-check route reached real browser evidence, but this agent's
-   chosen sampling/framing did not witness the graded area. Root cause of the numerical
-   discrepancy was not isolated by another run.
+   is bright before Space and green afterward. C L35 says “That pixel is white ... after
+   pressing space it's green”. The corrected foreground grade agrees: white cube pixels become
+   green. The original regional average diluted those pixels with background. The prompt imposes
+   no cube size; attributing that FAIL to the agent's framing or the example checks was wrong.
+   The original qualification's large known-good did not cover this class of observation error.
 2. **Owning surface: JSDoc (input lifecycle/material discovery).** C L17: “wondering if a \"setup\"
    group ... would be the right place”, followed by L19 scheduler implementation reading and
    L21 “I should just set the group to \"setup\" so it runs in the same frame”. It also repeats
@@ -220,7 +226,8 @@ The grade observes a stationary measurable silhouette (0.00% maximum change), sp
 All three agents used the startup-injected guidance's discovery command and reached relevant
 installed implementations, checks and source comments. None explicitly reread AGENTS.md; injection
 is observed, internal attention is not. Both visual tasks reached GPU/browser observations without
-operator help. The observed stalls belong to example composition/configuration, source/JSDoc
-navigation and check selection, not demonstrated internal scheduler/capture faults. In particular,
+operator help. The observed agent stalls concern example composition/configuration, source/JSDoc
+navigation and check selection, not demonstrated internal scheduler/capture faults. The original
+color FAIL was instead an evaluator observation error, corrected without changing the agent's work. In particular,
 these runs do not justify adding an observation CLI on the premise that the agent could not explore
 a running app. Which, if any, guidance/example fixes to make remains the person's decision.

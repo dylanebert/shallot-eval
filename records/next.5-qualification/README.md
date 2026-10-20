@@ -1,5 +1,11 @@
 # Evaluator qualification — 0.10.1-next.5
 
+**Color observation correction:** the original fixed central sampling region assumed an unrequested
+minimum cube size. The [qualification addendum](color-observation-correction/README.md) replaces that
+observation with border-contrast foreground pixels, retains all earlier color fixture verdicts,
+qualifies a smaller good cube and absent-cube INCOMPLETE, and re-grades the unchanged trial project
+PASS. The records below describe the earlier qualification; they did not cover the smaller-cube case.
+
 This is evaluator qualification, not a stock-agent trial or an engine-correctness test.
 Run on macOS arm64 with Bun 1.4.3 and Playwright Chromium 153 (Apple Metal-3 adapter).
 Records were refreshed after qualifying the diagonal-on-white fixture as `INCOMPLETE`: its outline

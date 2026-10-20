@@ -1,0 +1,7 @@
+{
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-color-on-key-KeBXkS/app",
+  "algorithm": "SHA-256 of sorted relative paths plus type markers, file contents and symlink text; no symlink traversal",
+  "before": "998e6af762a4480dc0549bf74dd82c7fe377d5245c6e03674375dd72c3d0a099",
+  "after": "998e6af762a4480dc0549bf74dd82c7fe377d5245c6e03674375dd72c3d0a099",
+  "unchanged": true
+}

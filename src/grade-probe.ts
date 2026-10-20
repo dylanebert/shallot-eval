@@ -1,5 +1,6 @@
 import { CAPTURE_CONTRACT, type Capture, captureFrame } from "@dylanebert/shallot/rendering";
 import { type FallSample, fallEvidence } from "./falling";
+import { foregroundColor } from "./foreground";
 import { deriveGateOk } from "./result";
 import { silhouette, silhouetteDelta } from "./silhouette";
 
@@ -213,21 +214,29 @@ async function orbitOnDrag(): Promise<void> {
 
 async function colorOnKey(): Promise<void> {
     canvas().focus();
-    const before = region(await shot(), 0.4, 0.4, 0.6, 0.6);
+    const before = foregroundColor(await shot());
     assert(
         "cube starts white",
-        before.r > 150 && before.g > 150 && before.b > 150,
-        `${before.r | 0},${before.g | 0},${before.b | 0}`,
+        before ? before.color.r > 150 && before.color.g > 150 && before.color.b > 150 : null,
+        before
+            ? `${before.color.r | 0},${before.color.g | 0},${before.color.b | 0}; ${before.pixels} foreground pixels`
+            : "undetermined: no cube pixels distinguishable from the border background",
     );
     (window as GradeWindow).__shallotEvalKeyboardReady = true;
     while (!(window as GradeWindow).__shallotEvalKeyboardDone)
         await new Promise((resolve) => setTimeout(resolve, 10));
     await new Promise((resolve) => setTimeout(resolve, 500));
-    const after = region(await shot(), 0.4, 0.4, 0.6, 0.6);
+    const after = foregroundColor(await shot());
     assert(
         "spacebar turns it green",
-        after.g > 110 && after.g > after.r + 40 && after.g > after.b + 40,
-        `${after.r | 0},${after.g | 0},${after.b | 0}`,
+        after
+            ? after.color.g > 110 &&
+                  after.color.g > after.color.r + 40 &&
+                  after.color.g > after.color.b + 40
+            : null,
+        after
+            ? `${after.color.r | 0},${after.color.g | 0},${after.color.b | 0}; ${after.pixels} foreground pixels`
+            : "undetermined: no cube pixels distinguishable from the border background",
     );
 }
 

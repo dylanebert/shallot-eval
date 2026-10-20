@@ -323,7 +323,13 @@ if (validationError) {
             const specPath = join(gradeDir, "grade.e2e.ts");
             const configPath = join(gradeDir, "playwright.config.ts");
             const resultPath = join(gradeDir, "result.json");
-            for (const file of ["grade-probe.ts", "silhouette.ts", "falling.ts", "result.ts"])
+            for (const file of [
+                "grade-probe.ts",
+                "silhouette.ts",
+                "falling.ts",
+                "foreground.ts",
+                "result.ts",
+            ])
                 cpSync(join(ROOT, "src", file), join(probeDir, file));
             try {
                 const built = await Bun.build({
