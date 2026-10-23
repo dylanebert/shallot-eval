@@ -22,7 +22,7 @@ bun run lint
 bun run test
 ```
 
-The Shallot package is pinned as a dev-only dependency to `0.10.1-next.5` in `package.json` and
+The Shallot package is pinned as a dev-only dependency to `0.10.1-next.7` in `package.json` and
 `bun.lock`. Task setup packs the installed package for an out-of-tree generated app; this artifact
 preflight is not the consumer's staged package state. The task app receives the package version,
 content hash, lockfile registry integrity and tar SHA-256 in `.eval.json`.

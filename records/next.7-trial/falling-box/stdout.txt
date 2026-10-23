@@ -1,0 +1,13 @@
+The demo is ready. When the project runs, a solid blue box starts 6 m above a plain gray floor, falls under gravity, lands and comes to rest. Nothing needs to be clicked. I checked it in the simulation and in the browser, and looked at screenshots of the box in the air and resting on the floor.
+
+**What I built**
+- `src/falling-box/index.ts` sets up the scene: a light, a camera, a static gray floor (12 × 12 m) and a 1 m blue box that physics moves. The box and floor are both drawn with the engine's built-in cube shape.
+- `index.html` now loads this scene. I deleted the starter spinning-cube scene in `src/welcome/` and updated the page description.
+- The floor looked almost white at first, so I darkened it to a mid gray.
+- You can still drag to orbit the camera. The demo doesn't need it.
+
+**Checks**
+- **`src/falling-box/falling-box.test.ts`** runs the simulation without drawing it. It confirms the box is blue and the floor is gray, that the box speeds up as it falls, and that it settles at floor height and stops moving.
+- **`falling-box.e2e.ts`** runs in the browser. It loads the page with no input and confirms the blue box moves down the screen, the gray floor is visible, and the box then stays still.
+
+`bun test` and the full `bunx playwright test` suite (the new browser test plus the existing startup tests) all pass.

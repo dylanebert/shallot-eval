@@ -1,0 +1,15 @@
+Your cube is now covered in diagonal orange and navy stripes that slide across its surface on their own. The camera is unchanged.
+
+**How it works**
+- **`src/welcome/stripes.ts`** is a new custom material. It paints alternating hard-edged bands diagonally across the cube and moves them using the engine's clock.
+- The bands run on through edges and corners because the pattern follows the cube's own geometry, so it turns with the cube.
+- They still respond to the scene's lighting.
+- **`src/welcome/index.ts`** gives the cube this material in place of its plain orange one. The cube still turns slowly, as it did before. That spin is separate from the stripes, which move even when the cube doesn't. Say if you'd rather the cube stood still.
+- You can change the two colours, `density` (stripes per unit) and `speed` (stripes moved per second) where the cube's material is created in `index.ts`.
+
+**Checks**
+- **New check, `tests/stripes.node.ts`**: it renders the cube off-screen and confirms both stripe colours are visible. It then advances time by half a stripe cycle and confirms the pixels switched colour (more than 400 of the 576 sampled; the threshold). It passes. Run it with `bun test ./tests/stripes.node.ts`.
+- **Real app**: I took two browser screenshots 0.7 s apart. Both show the striped cube, with the bands in different positions.
+- `bun test` and the existing browser tests (`bunx playwright test`) pass. The project has no `.github/workflows/test.yml`, so nothing runs these checks automatically yet.
+
+I added `webgpu` as a dev dependency because the off-screen rendering check needs it. Bun blocked one of its install scripts, but the check still runs.

@@ -1,0 +1,11 @@
+The scene now shows one white cube, and pressing Space turns it green for good. I ran it in a real browser: the cube is white before any key press and green straight after Space. The captured frames match that, and all the tests pass.
+
+- **Scene:** just the cube, a fixed camera and lights. I removed the starter's ground, spinning and mouse-orbit camera so it's keyboard only.
+- **Space:** the check runs every frame (not on a fixed timer), so the cube turns green on the same frame you press the key. After that it stops checking, so it stays green. Other keys do nothing.
+- **Code:** `src/cube/index.ts` replaces `src/welcome/`. `index.html` now loads the new cube setup and has an updated description.
+
+I added two checks:
+- **`src/cube/cube.test.ts`** (no browser): the cube starts white and stays white with no input. Space turns it green on that step and it stays green after you release the key. Another key (E) leaves it white.
+- **`cube.e2e.ts`** (real browser): it reads the centre pixel. It's white after loading, green after a real Space press, and still green half a second later.
+
+The green on screen is lighter than the colour I set (some red and blue shows through after rendering), so the browser check accepts any clearly green pixel rather than one exact value.
