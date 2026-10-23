@@ -1,0 +1,42 @@
+{
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-zL9gW7/app",
+  "contextAbsent": [
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-zL9gW7/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-striped-material-zL9gW7/CLAUDE.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/CLAUDE.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/CLAUDE.md",
+    "/private/var/folders/24/AGENTS.md",
+    "/private/var/folders/24/CLAUDE.md",
+    "/private/var/folders/AGENTS.md",
+    "/private/var/folders/CLAUDE.md",
+    "/private/var/AGENTS.md",
+    "/private/var/CLAUDE.md",
+    "/private/AGENTS.md",
+    "/private/CLAUDE.md",
+    "/AGENTS.md",
+    "/CLAUDE.md",
+    "/Users/dylan.ebert/.pi/agent/AGENTS.md",
+    "/Users/dylan.ebert/.pi/agent/CLAUDE.md"
+  ],
+  "projectAgentsSha256": "86c2b1cc5decd7805b19949883cbe1206340f7657a60d8076df50aff83959449",
+  "argv": [
+    "pi",
+    "-p",
+    "--no-extensions",
+    "--no-skills",
+    "--no-mcp",
+    "--no-prompt-templates",
+    "--session-dir",
+    "/Users/dylan.ebert/.worktrees/kex/shallot-eval/eval-0101/records/0.10.1-trial/striped-material",
+    "# A cube with a moving pattern on it\n\nI want a cube whose surface has a pattern running across it \u2014 think stripes or bands \u2014 and I'd like\nthat pattern to keep moving on its own, so the cube always looks alive. A single flat colour won't do:\nI want to actually see lines or bands on the surface, and I want them to shift over time.\n\nThe camera can stay where it is. It's the pattern on the cube that should be moving.\n"
+  ],
+  "started": "2026-10-23T03:56:19.432771+00:00",
+  "limitSeconds": 1800,
+  "piVersion": "1.4.0",
+  "wallSeconds": 160.04762945801485,
+  "exitCode": 0,
+  "timedOut": false,
+  "ended": "2026-10-23T03:58:59.632220+00:00"
+}

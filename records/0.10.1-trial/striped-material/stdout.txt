@@ -1,0 +1,18 @@
+The cube now has diagonal amber and near-black stripes that slide across its surface all the time. The camera is where it was. I stopped the cube's old spin, so the only thing moving is the pattern.
+
+**How it works**
+- **`src/welcome/stripes.ts`** (new) defines a custom material called `StripeMaterial`, based on the scrolling checker in the installed `materials` example. The bands run along the line where x + y + z is the same, using the cube's own coordinates, so they carry on without a break from one face to the next. The light/dark split is a hard edge, so you see clear lines rather than a smooth gradient. A `time` value shifts the bands along that diagonal.
+- **`src/welcome/index.ts`**: the cube uses `StripeMaterial` instead of the flat orange. The spin system is replaced by one that adds elapsed time to a clock every frame and passes it to the material. The ground is unchanged.
+- To tweak the look, change `STRIPE_FREQUENCY` (default: 3 stripes per unit) and `STRIPE_SPEED` (default: 0.6 stripe widths per second) in `stripes.ts`. The colours are set where the cube's material is created in `index.ts`.
+
+**Checks** (all pass)
+- **`src/welcome/welcome.test.ts`** (updated): confirms the cube uses the stripe material and that the material's clock advances as time passes.
+- **`tests/stripes.node.ts`** (new): renders the cube on the GPU with a camera that doesn't move. It found 204 dark and 193 light pixels in the middle of the cube, so both band colours are showing. After moving the pattern a quarter of a stripe width, 238 pixels had changed.
+- `bun check`, `bun test` and the existing browser startup checks (`bunx playwright test`) pass. Those startup checks include the one that warns if the page starts drawing before the new material is ready.
+
+I checked this with test numbers only; I didn't look at a picture of the result. Run `bun run dev` to see it.
+
+**Other changes**
+- Added `typegpu` as a dependency, since the material code imports it directly. Added `webgpu` as a dev dependency, which the GPU check needs to run.
+- Added a step to the CI browser job in `.github/workflows/test.yml` to run the new GPU check, because CI didn't run `*.node.ts` files before. That job already installs the graphics driver this needs.
+- Updated the page description in `index.html`.
