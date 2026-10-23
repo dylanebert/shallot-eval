@@ -6,7 +6,7 @@ an agent works in it, and a withheld gate grades it through the installed packag
 and capture exports. This repository owns task prompts, withheld expectations, invocation records,
 and outcomes. Shallot owns engine correctness and the mechanism that establishes it.
 
-The consumer pins the published release, and setup records the version and content hash of the
+The consumer pins a published version, and setup records the version and content hash of the
 installed Shallot package used for its artifact preflight. A single run does not produce a score,
 aggregate, model-capability conclusion, or comparative claim.
 
@@ -22,9 +22,8 @@ bun run lint
 bun run test
 ```
 
-The Shallot package is pinned as a dev-only dependency to `0.10.1` in `package.json` and
-`bun.lock`. Task setup packs the installed package for an out-of-tree generated app; this artifact
-preflight is not the consumer's staged package state. The task app receives the package version,
+The Shallot package is pinned exactly as a dev-only dependency in `package.json` and `bun.lock`.
+Task setup packs the installed package for an out-of-tree generated app; this artifact preflight is not the consumer's staged package state. The task app receives the package version,
 content hash, lockfile registry integrity and tar SHA-256 in `.eval.json`.
 
 ## The Contract

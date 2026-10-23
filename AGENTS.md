@@ -11,7 +11,7 @@ gates into a second engine-correctness population, or infer model capability fro
 
 ## Package States
 
-- The consumer pin is `@dylanebert/shallot@0.10.1` in `package.json` and `bun.lock`.
+- The consumer pins one published `@dylanebert/shallot` version exactly in `package.json` and `bun.lock`.
   Staging uses `bun pm pack` from Shallot main followed by `bun add --no-save <tarball> --dev`;
   `bun install` restores the registry pin without changing either file.
 - Local co-development is an uncommitted `bun link` producer registration plus
