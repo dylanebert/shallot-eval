@@ -1,0 +1,21 @@
+The cube now has dark and orange diagonal stripes that keep sliding across its surface. The camera is unchanged, and so is the cube's position.
+
+I rendered frames of the scene and looked at them: the stripes show clearly on every visible face. A GPU test renders the scene twice, half a cycle apart, and the bands swap colours between the two frames. The tests, the type check and the browser startup tests all pass.
+
+**One change you didn't ask for:** I stopped the cube's spin so that the only motion is the pattern. To bring the spin back, restore the old `SpinCube` system in `src/welcome/index.ts`.
+
+**How it works:**
+- **`src/welcome/stripes.ts`** (new) defines a custom surface for the cube that draws two-colour stripes with normal lighting. The stripes are laid out relative to the cube itself, so they run continuously over the edges from one face to the next.
+- **Speed and spacing:** `stripeSpeed` is set to 0.6 bands per second and `stripeFrequency` to 3 bands per unit. Change these to make the stripes faster or wider, and `stripeDirection` to change their angle.
+- **`src/welcome/index.ts`:** the cube uses the stripe surface, and a small per-frame update advances its clock so the bands move. The two colours are set here.
+
+**Checks:**
+- `src/welcome/welcome.test.ts` checks three things: the clock moves forward, the cube doesn't move, and the stripe pattern shifts over time and repeats.
+- `tests/stripes.node.ts` is the GPU render check. Your CI workflow doesn't run it, so run it yourself with `bun test ./tests/stripes.node.ts`.
+
+**Other changes:**
+- Added `typegpu` as a dependency, because the stripe code uses it directly.
+- Added `webgpu` as a dev dependency, which the GPU test needs.
+- Updated the page description in `index.html` to mention the moving stripes.
+
+When I added `webgpu`, Bun reported 1 blocked postinstall script. The GPU test passed anyway, but `bun pm untrusted` will show you what was blocked.

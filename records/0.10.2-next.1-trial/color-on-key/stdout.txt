@@ -1,0 +1,15 @@
+I replaced the spinning welcome scene with a single cube that starts white and turns green when you press Space. It stays green after that. The type check, unit tests and browser tests all pass, including a browser run with a real Space press.
+
+**What's in the scene:** one cube, a light and a fixed camera. I removed the ground and the mouse-driven orbit camera, so the only control is the keyboard.
+
+**How it works** (`src/cube/index.ts`): every frame, a small system checks whether Space was pressed. The first time it is, it changes the cube's color to green and remembers that it did, so later presses do nothing. The check runs at the start of each frame, so the frame where you press Space is already drawn green. Other keys leave the cube white.
+
+**Files:**
+- `index.html`: now loads the cube scene instead of the welcome one, with an updated page description.
+- `src/welcome/`: deleted.
+
+**Checks:**
+- `src/cube/cube.test.ts`: the cube starts white and stays white with no input or other keys; Space turns it green on that same frame; it stays green after you let go and after pressing Space again.
+- `tests/cube.e2e.ts`: in a real browser, the middle of the screen shows white until Space is pressed, then green, and it stays green.
+
+You can try it with `bun run dev`.

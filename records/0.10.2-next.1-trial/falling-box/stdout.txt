@@ -1,0 +1,17 @@
+The demo is built. When the page loads, a solid blue 1 m box drops from 5 m, lands on a plain gray floor and comes to rest. It starts without any clicking. You can still drag the camera around if you like.
+
+**What changed**
+- **`src/drop/index.ts`**: the new scene. The floor is a 10 × 10 m gray slab that doesn't move, with its top at height 0. The box starts at a height of 5 m and falls under the engine's default gravity. I made both lights plain white so they don't tint the floor; it renders at (159,159,159), a true gray.
+- **`index.html`**: now runs this scene instead of the starter spinning cube. I also changed the page title to "falling box" and updated its description.
+- **`src/welcome/`**: I deleted the starter scene and its test.
+
+**Checks (all passing)**
+- **`tests/falling-box.node.ts`**: runs the simulation and confirms three things:
+  - the box falls more than 0.5 m in its first 30 steps;
+  - it never sinks below 0.4 m;
+  - it settles at 0.5 m (the box's center when it sits on the floor), and the physics engine reports it as asleep.
+- **`src/drop/drop.test.ts`**: a quick check that the scene is set up as intended: a falling box held in the air above a fixed floor, blue box and neutral gray floor. Without it, `bun test` found no tests at all, which would fail CI.
+- `bun check`, `bun test` and the browser startup tests (`bunx playwright test`) all pass.
+- I looked at a screenshot of the running page after about 4 seconds: the blue box was resting flat on the gray floor, with a shadow. I didn't capture the box mid-fall in the browser, because the loading screen was still showing at the earlier screenshot. The fall itself is confirmed by the simulation test.
+
+Run it with `bun run dev`.
