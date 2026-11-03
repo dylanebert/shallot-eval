@@ -1,0 +1,16 @@
+The cube now has diagonal amber and dark stripes that keep sliding across it on their own. The camera is unchanged. I took two browser screenshots 0.7 s apart, and the stripes had clearly moved between them.
+
+**How it works**
+- **New file `src/stripes/material.ts`:** a custom material that paints soft-edged bands from each point's position on the cube. Because the bands come from the cube's own shape rather than per-face coordinates, they run continuously over the edges from one face to the next.
+- **The motion:** the material has a `time` value, and a new system in `src/welcome/index.ts` moves it forward every frame, which slides the bands along. You can change how close together the bands are (`stripeDensity`), how fast they move (`stripeSpeed`), their direction (`stripeDirection`) and the two colours.
+- **I removed the cube's spin** so the only thing moving is the pattern. If you'd like the spin back as well, it's a small change.
+
+**Checks**
+- `src/welcome/welcome.test.ts` replaces the old spin test. It checks that the cube uses the striped material, that the material's time moves forward as the game runs, and that the pattern has both dark and light bands that change over time.
+- `tests/stripes.node.ts` renders the cube and compares two frames. It found strong contrast between bands (darkest pixel 74, brightest 252), and 562 of the 576 pixels checked had changed after 0.8 s.
+- `bun check`, `bun test` and the existing startup browser test all pass.
+
+**Other changes**
+- To render frames outside the browser I added the `webgpu` package as a dev dependency.
+- CI doesn't run `tests/stripes.node.ts` automatically. Run it with `bun test ./tests/stripes.node.ts`.
+- I updated the page description in `index.html` to match.

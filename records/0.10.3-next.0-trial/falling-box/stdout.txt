@@ -1,0 +1,18 @@
+I built the demo. When you run `bun run dev`, a solid blue box drops from 5 m onto a plain gray floor, tumbles a little, and comes to rest. It starts on its own with no clicking; you can drag to move the camera around.
+
+I checked it three ways and all passed:
+- **Physics:** the box drops about 4.5 m in its first second, lands about 1 s in, and comes fully to rest at about 2.5 s, sitting flat on the floor without sinking into it.
+- **Colours:** the box's colour is set to blue and the floor's to gray.
+- **In the browser:** with no input, the blue box appears, moves down the screen onto the gray floor, and then stays put. I also looked at a screenshot of the settled box.
+
+`bun check`, `bun test` and `bunx playwright test` all pass.
+
+The box starts slightly tilted, so it lands on an edge, tips over and settles on a face. If you'd rather it drop straight down and land flat, change the `rotation` line in `src/falling-box/index.ts` to `[0, 0, 0, 1]`.
+
+Files:
+- **Added `src/falling-box/index.ts`:** the demo itself (light, camera, floor and box).
+- **Added `src/falling-box/falling-box.test.ts`:** the physics and colour checks.
+- **Added `falling-box.e2e.ts`:** the browser check.
+- **Updated `index.html`:** it now starts the demo, with a new title and description.
+- **Updated `README.md`:** a one-line description of the demo.
+- **Removed `src/welcome/`:** the turning-cube starter scene and its test.

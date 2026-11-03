@@ -1,0 +1,11 @@
+The page now shows one white cube. Pressing space turns it green on the frame you press it, and it stays green after that. `bun check`, `bun test` and all the Playwright tests pass, and a screenshot from the browser test shows the green cube.
+
+- **Code:** `src/cube/index.ts` sets up a fixed camera, a light and the cube. A check that runs every frame looks for space and turns the cube green. Other keys do nothing, and pressing space again doesn't change it back.
+- **Removed:** I deleted the starter scene (`src/welcome/`), including its mouse-driven orbit camera, so the page responds to the keyboard only. The cube doesn't spin.
+- **`index.html`:** now loads the cube instead of the starter scene, and I updated its description text.
+
+**Tests:**
+- `src/cube/cube.test.ts` checks that the cube starts white, stays white when nothing or another key is pressed, turns green on the frame space is pressed, and stays green afterwards.
+- `tests/color.e2e.ts` runs the real page in a browser and checks the colour at the centre of the screen: white before the keypress, then green after it.
+
+Run it with `bun run dev` and press space.
