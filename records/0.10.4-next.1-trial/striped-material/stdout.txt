@@ -1,0 +1,17 @@
+The cube now has diagonal amber and near-black stripes that slide across its surface on their own. The camera is unchanged.
+
+**What I changed:**
+- **`src/welcome/stripes.ts`** (new): a custom material for the stripes. The bands are based on the cube's own geometry, so they wrap across all six faces instead of restarting on each one, and their edges are slightly softened. You can change the direction, number of bands and scroll speed with `stripeDirection`, `stripeFrequency` (3.5 bands per cube width) and `stripeSpeed` (0.6 cycles per second) at the top of the file.
+- **`src/welcome/index.ts`**: the cube uses the new material instead of the flat orange one, and a small system moves the pattern forward every frame.
+- **I removed the cube's spinning** so that the only movement you see is the pattern. If you want it back, re-adding the old spin system is a quick change.
+- **`index.html`**: the page description now says "moving stripes" instead of "turning cube".
+
+**Checks:**
+- **`src/welcome/welcome.test.ts`**: I replaced the old "cube turns" test with three tests. They check that the stripe clock moves forward each frame, that a face has several light and dark bands, and that the bands move over time.
+- **`tests/stripes.node.ts`** (new): renders a small image of a cube face and compares one row of pixels before and after the clock moves. The row alternated between dark (66) and bright (230), and the bright bands had shifted along the row in the second image.
+- `bun check`, `bun test` and the browser tests (`bunx playwright test`, 6/6) all pass.
+- **I didn't watch it running in a browser.** The browser tests only confirm the scene starts and draws; the evidence that the stripes look right and move comes from the rendered image.
+
+**Two things to know:**
+- I added `webgpu` as a dev dependency because the rendered-image test needs it.
+- CI doesn't run that test automatically; run it with `bun test ./tests/stripes.node.ts`.

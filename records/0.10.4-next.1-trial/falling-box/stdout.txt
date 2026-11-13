@@ -1,0 +1,14 @@
+The demo is built and plays on its own as soon as the page loads, with no clicking. A solid blue box starts 4 m up, falls under gravity onto a flat gray floor and settles there. All checks pass: typecheck, the unit test, the new rendered-frame check and the browser startup tests.
+
+**What changed**
+- **`src/drop/index.ts`** (new): sets up the box, the floor, the lighting and a fixed camera aimed at the landing spot. The box is 0.8 m on each side and the physics engine moves it. The floor is 8 × 8 m and doesn't move.
+- **`index.html`**: now starts the drop demo instead of the starter "welcome" scene. I updated the page description to match.
+- **`src/welcome/`**: deleted (the starter spinning-cube scene).
+
+**How I checked it**
+- **`src/drop/drop.test.ts`**: runs the physics without drawing anything. It confirms the box falls, never sinks into the floor, ends up sitting flat on it (centre 0.4 m above the floor) and that the physics engine marks it as at rest. It runs with `bun test`.
+- **`tests/drop.node.ts`**: draws actual frames using the GPU. Between the first frame and 5 s later, the blue pixels move about 44 rows down a 120-row image, and the gray floor fills more than 10% of the frame. This check needed the `webgpu` package, so I added it as a dev dependency in `package.json`.
+  - When installing `webgpu`, Bun blocked one of its setup scripts. The check runs fine without it.
+  - Neither `bun test` nor CI runs this check automatically; run it with `bun test ./tests/drop.node.ts`.
+
+I didn't watch it in a browser myself. The browser startup tests only confirm the scene loads cleanly. To see it, run `bun run dev`.

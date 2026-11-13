@@ -1,0 +1,42 @@
+{
+  "project": "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-JxaufF/app",
+  "contextAbsent": [
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-JxaufF/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/shallot-eval-falling-box-JxaufF/CLAUDE.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/T/CLAUDE.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/AGENTS.md",
+    "/private/var/folders/24/2ff01nsx7cs9005l3jbptw8c0000gp/CLAUDE.md",
+    "/private/var/folders/24/AGENTS.md",
+    "/private/var/folders/24/CLAUDE.md",
+    "/private/var/folders/AGENTS.md",
+    "/private/var/folders/CLAUDE.md",
+    "/private/var/AGENTS.md",
+    "/private/var/CLAUDE.md",
+    "/private/AGENTS.md",
+    "/private/CLAUDE.md",
+    "/AGENTS.md",
+    "/CLAUDE.md",
+    "/Users/dylan.ebert/.pi/agent/AGENTS.md",
+    "/Users/dylan.ebert/.pi/agent/CLAUDE.md"
+  ],
+  "projectAgentsSha256": "86c2b1cc5decd7805b19949883cbe1206340f7657a60d8076df50aff83959449",
+  "argv": [
+    "pi",
+    "-p",
+    "--no-extensions",
+    "--no-skills",
+    "--no-mcp",
+    "--no-prompt-templates",
+    "--session-dir",
+    "/Users/dylan.ebert/.worktrees/kex/shallot-eval/release-0-10-4/records/0.10.4-next.1-trial/falling-box",
+    "# A box that drops and lands\n\nI want a physics demo: a box starts up in the air, falls under gravity, and lands on a flat floor,\nthen comes to rest. Make the box a solid blue so it's easy to see, and give it a plain gray floor to\nland on.\n\nIt should just play on its own when the project runs \u2014 no clicking needed.\n"
+  ],
+  "started": "2026-11-13T13:17:23.547089+00:00",
+  "limitSeconds": 1800,
+  "piVersion": "1.5.2",
+  "wallSeconds": 122.63027208400308,
+  "exitCode": 0,
+  "timedOut": false,
+  "ended": "2026-11-13T13:19:26.338871+00:00"
+}
