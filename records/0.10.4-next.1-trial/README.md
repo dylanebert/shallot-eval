@@ -1,12 +1,13 @@
 # Stranger trial — 0.10.4-next.1
 
 One stock-agent invocation per task, in the order below, on 2026-11-13 (UTC). No retry,
-operator intervention, operator task-project edit, or re-grade. These are three individual
+operator intervention in the agent runs or operator task-project edit. Falling-box was later
+regraded once after browser provisioning, as recorded below. These are three individual
 trajectories, not a reliability estimate or an engine-correctness population.
 
 | Task | Verdict | Agent wall time | Model (default, not overridden) |
 |---|---|---|---|
-| falling-box | INCOMPLETE | 122.630s (2m03s) | anthropic/claude-opus-5-5, medium thinking |
+| falling-box | PASS on regrade (first grade INCOMPLETE) | 122.630s (2m03s) | anthropic/claude-opus-5-5, medium thinking |
 | color-on-key | PASS | 90.202s (1m30s) | anthropic/claude-opus-5-5, medium thinking |
 | striped-material | PASS | 135.685s (2m16s) | anthropic/claude-opus-5-5, medium thinking |
 
@@ -68,20 +69,30 @@ Verdicts above come from grade.json, not agent exit status.
   engine checkout. Context isolation is not a filesystem sandbox.
 - pi is now 1.5.2 rather than 1.5.0; the default model and thinking level are unchanged.
   `bun install` warned about the typegpu peer dependency; surface gates still passed.
-- Falling-box's single independent grade is INCOMPLETE: Playwright could not launch because
-  the required cached Chromium 1243 full-browser executable was missing. No browser install,
-  re-grade or other operator correction was attempted. Later grades launched successfully;
-  this record does not establish why the shared host browser availability differed.
+- Falling-box's first independent grade is INCOMPLETE: Playwright could not launch because
+  the required cached Chromium 1243 full-browser executable was missing. Later task grades
+  launched successfully; this record does not establish why shared host availability differed.
+  After the initial record commit, the operator explicitly requested browser provisioning and
+  one regrade of the same untouched project. From the evaluator root, `bunx playwright --version`
+  reported 1.63.0 and `bunx playwright install chromium` exited 0. The same grade command was
+  then run once; `falling-box/regrade.json` records PASS and `regrade-stderr.txt` its stderr.
+  The original `grade.json` remains unchanged. The agent was not rerun, and the task project was
+  not touched. A full regular-file tree SHA-256 (sorted relative path, NUL, contents; symlinks
+  excluded) before and after grading was identical:
+  `c89d7d036749321e8b2a7cf7d8d48afecae396ce243f06e5f493f1c6e83d20ba`.
 - Color-on-key exited 1 after provider 503 credential-validation errors, with no final response.
   The stock harness made its own recovery attempts within that one invocation; the supervisor
   did not retry it. Its existing project nevertheless independently grades PASS.
 - Striped-material also encountered provider 503 errors within its invocation, recovered without
   operator help, and exited 0. Falling-box exited 0. All grading-copy typechecks and builds pass.
 
-## falling-box — INCOMPLETE
+## falling-box — PASS on regrade; first grade INCOMPLETE
 
-[Grade](falling-box/grade.json): no determined task observations, because the grading browser
-could not launch. This is not a task PASS or FAIL.
+[First grade](falling-box/grade.json): no determined task observations, because the grading
+browser could not launch. [Regrade](falling-box/regrade.json), after browser provisioning:
+360/360 visible blue samples, descent 0.358, and a final 2,000ms rest interval with centroid
+spread 0.0000. Both grading-copy typecheck and build pass. The agent was not rerun and the
+project was unchanged.
 
 ### Reading and checks
 
@@ -97,9 +108,9 @@ could not launch. This is not a task PASS or FAIL.
 
 1. **Owning surface: GPU-check prerequisites.** F L35–38 discover and install webgpu after
    the rendered check needs it. The agent reports Bun blocking its setup script; its check passes.
-2. **Owning surface: evaluator host browser availability.** The independent grade cannot launch
-   the required browser. Agent startup/GPU checks do not substitute for the withheld falling/rest
-   observation. No engine mechanism failure is established.
+2. **Owning surface: evaluator host browser availability.** The first independent grade could
+   not launch the required browser. The separately recorded regrade after browser provisioning
+   passes the withheld falling/rest observation. No engine mechanism failure is established.
 
 ## color-on-key — PASS
 
@@ -152,9 +163,10 @@ peak-to-peak 70 with three crossings, and observed frame motion.
 
 ## Scope of conclusions
 
-Two existing projects independently meet the qualified task observations. Falling-box remains
-INCOMPLETE because its public observation could not run on this host; its agent checks are not
-replacement evidence. Provider errors interrupted one agent and were recovered within another.
-These trajectories are witnesses, not a reliability estimate, an engine-correctness population,
-or a capability comparison with the previous trial. No retry or corrective operator intervention
-was used to turn an incomplete trajectory or grade green.
+All three existing projects independently meet the qualified task observations, with falling-box
+requiring one separately recorded regrade after provisioning the missing browser. Its original
+INCOMPLETE grade is preserved. No agent was rerun and no task project was edited by the operator.
+Color-on-key's invocation exited 1 on provider 503 errors while its written project passed;
+striped-material recovered from provider errors within its invocation. These trajectories are
+witnesses, not a reliability estimate, an engine-correctness population, or a capability comparison
+with the previous trial.
